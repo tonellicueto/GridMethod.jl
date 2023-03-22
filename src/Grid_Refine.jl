@@ -55,6 +55,7 @@ Base.push!(G::Grid, g::GridNode) = push!(nodes(G), g)
 Base.append!(G::Grid, iter) = append!(nodes(G), iter)
 Base.pop!(G::Grid) = Base.pop!(nodes(G))
 Base.isempty(G::Grid) = Base.isempty(nodes(G))
+Base.findmin(G::Grid) = Base.findmin(image.(nodes(G)))
 
 function points(G::Grid, C = nothing)
     @unpack nodes = G
