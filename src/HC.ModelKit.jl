@@ -19,5 +19,5 @@ function eval_and_J(x, F::MK.System; compiled = true, kwargs...)
     MK.evaluate_and_jacobian!(u, U, f, x, nothing)
     fx = MK.to_smallest_eltype(u)
     Jx = MK.to_smallest_eltype(U)
-    (x, fx, Jx)
+    (fx, Jx)
 end

@@ -21,5 +21,5 @@ function eval_and_J(x, sys::MTK.NonlinearSystem; kwargs...)
                               sparse = false,
                               simplify = false,
                               kwargs...)
-    (x, f.f(x,[]), f.jac(x,[]))
+    (f.f(x,[]), f.jac(x,[]))
 end

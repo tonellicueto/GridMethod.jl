@@ -1,7 +1,7 @@
 
 function constant(x, F, norm_sys; get_sigma, norm_image, choosing, kwargs...)
     norm₀, Δ₀ = norm_sys(F; kwargs...), Δ(F)
-    (x, fx, Jx) = eval_and_J(collect(x), F; kwargs...)
+    (fx, Jx) = eval_and_J(collect(x), F; kwargs...)
     σ = get_sigma(x, Jx, Δ₀)
     f2 = norm_image(fx)
     return norm₀/choosing(f2, σ)
