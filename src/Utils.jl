@@ -42,14 +42,6 @@ homothecy(m) = x -> m.*x
 translation(a) = x -> x.+a
 dilation(a, m) = translation(a)∘homothecy(m)
 
-function terms(sys;
-               vars = get_vars(sys),
-               expanded = true)
-    return  terms.(get_polys(sys);
-                   vars = vars,
-                   expanded = expanded)
-end
-
 ## From HC.jl
 """
     monomial(X, I, n = length(X))

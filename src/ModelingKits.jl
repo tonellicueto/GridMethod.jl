@@ -12,6 +12,16 @@ The `poly` will be feed by [`get_polys`](@ref).
 """
 function terms end
 
+## terms of a system; vector of iters
+function terms(sys;
+               vars = get_vars(sys),
+               expanded = true)
+    return  terms.(get_polys(sys);
+                   vars = vars,
+                   expanded = expanded)
+end
+
+
 """
     get_vars(F)
 
