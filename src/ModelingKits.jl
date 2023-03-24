@@ -4,7 +4,7 @@
     terms(poly; vars, expanded = false)
 
 Returns the list of terms, tuples `(exponent, coefficient)`, of a polynomial `poly`.
-The `poly` will be feed by [`get_polys`](@ref).
+[`get_polys`](@ref) has to return polynomials of the same type as `poly`.
 
 # Keyword arguments:
  - `vars`: The variables of the polynomial.

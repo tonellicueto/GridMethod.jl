@@ -2,8 +2,7 @@
 """
     norm(F, f, fold_system = sum, fold_poly = sum)
 
-Returns the norm of the system of polynomials `F` given by applying `f` to terms `(I, C)` and folding each polynomial accordingly to `fold_poly` and finally folding the system by `fold_system`.
-Assumes polynomials in `F` are expanded.
+Returns the norm of the system of polynomials `F` given by applying `f` to terms `IC = (I, C)` and folding each polynomial accordingly to `fold_poly` and finally folding the system by `fold_system`.
 """
 function norm(F, f, fold_system = sum, fold_poly = sum; kwargs...)
     return fold_system(terms -> fold_poly(f, terms), terms(F; kwargs...)) ## trems in Utils.jl
