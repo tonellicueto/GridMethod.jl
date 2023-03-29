@@ -19,7 +19,7 @@ end
 Weil norm of a system of polynomials.
 """
 function Wnorm(F; kwargs...)
-    return norm(F, Wnorm_f; kwargs...)
+    return sqrt(norm(F, Wnorm_f; kwargs...))
 end
 
 """
