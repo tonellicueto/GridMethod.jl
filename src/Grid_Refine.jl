@@ -36,9 +36,9 @@ end
 function point(g::GridNode, C = nothing)
     @unpack odds, depth, image = g
     if C == nothing
-        return (odds, collect(grid_getcoords(odds, depth)), image)
+        return (odds, collect(grid_getcoords(odds, depth)), depth, image)
     end
-    return (odds, collect(grid_getcoords(odds, depth)), depth, C*inv(exp2(depth)), image)
+    return (odds, collect(grid_getcoords(odds, depth)), depth, image, C*inv(exp2(depth)))
 end
 
 
