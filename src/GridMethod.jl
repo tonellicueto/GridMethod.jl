@@ -25,7 +25,7 @@ include("Han.jl")
 
 using Requires
 
-include("ModelingKits.jl")
+include("ModelKitDocs.jl")
 function __init__()
     @require HomotopyContinuation = "f213a82b-91d6-5c5d-acf7-10f1c761b327" begin
         # import .HomotopyContinuation as HC

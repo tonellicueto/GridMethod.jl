@@ -12,13 +12,12 @@ Returns the list of terms, tuples `(exponent, coefficient)`, of a polynomial `po
 """
 function terms end
 
-## terms of a system; vector of iters
+## Getting terms of a system; outputs a vector of iters.
 function terms(sys;
                vars = get_vars(sys),
                expanded = true)
-    return  terms.(get_polys(sys);
-                   vars = vars,
-                   expanded = expanded)
+    return Iterators.map(poly -> terms(poly; vars = vars, expanded = expanded),
+                         get_polys(sys))
 end
 
 
