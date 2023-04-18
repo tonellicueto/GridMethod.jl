@@ -56,15 +56,21 @@ function monomial(X, I, n=length(X))
 end
 
 """
-    Id(::Type{T}=Float64, n)
+    Id(::Type{T}, n)
 
 Returns the identity matrix of size `n` and type `T`.
 """
 function Id(::Type{T}, n) where T
-    LA.Diagonal(ones(T, n))
+  return LA.Diagonal(ones(T, n))
 end
-Id(v::AbstractVector) = Id(eltype(v), length(v))
-# diagonal(v) = cat(v...; dims = (1, 2)) # Without LinearAlgebra.jl
+
+"""
+    Id(iter)
+
+Returns the identity matrix of size `length(iter)` and type `eltype(iter)`.
+"""
+Id(iter) = Id(eltype(iter), length(iter))
+# diagonal(v) = cat(v...; dims = (1, 2)) # not using LinearAlgebra.jl
 
 """
     Δ(F)
