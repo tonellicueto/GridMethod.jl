@@ -78,7 +78,7 @@ Id(iter) = Id(eltype(iter), length(iter))
 Returns the degree matrix of a system of polynomials `F`.
 """
 function Δ(F)
-    LA.Diagonal(degrees(F))
+    return LA.Diagonal(degrees(F))
 end
 
 """
@@ -90,6 +90,6 @@ Returns the matrix difference between the identity matrix and the outer product 
  - `n`: The size of the identity matrix.
 """
 function D(x)
-    Id(x) - x*transpose(conj(x))
+    return Id(x) - x*transpose(conj(x))
 end
 
