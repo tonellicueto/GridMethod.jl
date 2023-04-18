@@ -33,7 +33,6 @@ function __init__()
         include("HC.ModelKit.jl")
     end
     @require ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78" begin
-        @eval import Symbolics
         import .ModelingToolkit as MTK
         include("ModelingKits.jl")
         include("ModelingToolkit.jl")
