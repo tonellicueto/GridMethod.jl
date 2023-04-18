@@ -85,9 +85,6 @@ end
     D(x)
 
 Returns the matrix difference between the identity matrix and the outer product of `x` and its conjugate transpose.
-
-# Keyword arguments:
- - `n`: The size of the identity matrix.
 """
 function D(x)
     return Id(x) - x*transpose(conj(x))
