@@ -13,7 +13,9 @@ function scattergrid end
 set_forplot(G) = eachrow(reduce(hcat, nodes(G)))
 
 @recipe function f(sg::ScatterGrid;
-                   f_ms = i -> 2 + 20 * (.5)^i, # Marker size
+                   r = 2,
+                   R = 20,
+                   f_ms = i -> r + R*(.5)^i, # Marker size
                    f_ma = (d, dmin, dmax) -> (d - dmin)/(dmax - dmin), # Mark alpha/opacity
                    color = "rgb(238,37,35)"
                    )
