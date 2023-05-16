@@ -19,9 +19,9 @@ set_forplot(G) = eachrow(reduce(hcat, nodes(G)))
                    )
     G, = sg.args
     Dict_depth = grid_groupbydepth(G)
-    I = collect(keys(Dict_depth))
-    dmin = minimum(I)
-    dmax = maximum(I)
+    I = sort!(collect(keys(Dict_depth))) # Sort it for the legend
+    dmin = first(I)
+    dmax = last(I)
     # Set default values
     axis --> ([-1.1,1.1],)
     # xaxis --> ("x",)
@@ -31,7 +31,7 @@ set_forplot(G) = eachrow(reduce(hcat, nodes(G)))
     thickness_scaling --> 1
     shift = dmin -1
     # Plot each depth group
-    for d in sort!(I) # Sort it for the legend.
+    for d in I
         x, y = set_forplot(Dict_depth[d]) # We only plot in two dimensions.
         @series begin
             seriestype := :scatter
