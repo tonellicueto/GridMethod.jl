@@ -1,94 +1,128 @@
 
-
-divpow2(n, N) = n/exp2(N)
-bound(depth) = 2^(depth)-1
-function odds(depth::Int)
-    bnd = bound(depth)
-    return -bnd:2:bnd
+## Utils for Grid
+function grid_oddcoords(depth::Int)
+    bound = 2^(depth)-1
+    return -bound:2:bound
 end
 
-function oddsgrid(dim, depth)
-    return Iterators.product(ntuple(_ -> odds(depth), Val(dim))...)
+function grid_oddpoints(::Val{dim}, depth) where dim
+    return Iterators.product(ntuple(_ -> grid_oddcoords(depth), Val(dim))...)
 end
 
-function grid_getcoords(iter, depth)
-    return Iterators.map(n -> divpow2(n, depth), iter)
+function grid_getcoords(depth, iter)
+    return map(n -> n/exp2(depth), iter)
 end
 
-# grid_getallcoords(depth) = grid_getcoords(odds(depth), depth)
-
-# function get_gridnodes{dim}(depth)
-#     return Iterators.map(I -> grid_getcoords(I, depth), oddsgrid(dim, depth))
-# end
-
+## A grid node
 struct GridNode{T, dim}
-    odds::Vector{Int}
     depth::Int
+    odds::Vector{Int}
     image::T
 end
 
+depth(g::GridNode) = g.depth
 image(g::GridNode) = g.image
+dim(::GridNode{T, dim}) where {T, dim} = dim
 function node(g::GridNode)
-    @unpack odds, depth = g
-    return grid_getcoords(odds, depth)
+    @unpack depth, odds = g
+    return grid_getcoords(depth, odds)
 end
 
-function point(g::GridNode, C = nothing)
-    @unpack odds, depth, image = g
-    if C == nothing
-        return (odds, collect(grid_getcoords(odds, depth)), depth, image)
-    end
-    return (odds, collect(grid_getcoords(odds, depth)), depth, image, C*inv(exp2(depth)))
-end
-
-
+#### Grid interface
 mutable struct Grid{T, dim, F}
-    nodes::Vector{GridNode{T, dim}}
+    gridnodes::Vector{GridNode{T, dim}}
     fun::F
 end
 
-nodes(G::Grid) = G.nodes
+## Access to grid
 fun(G::Grid) = G.fun
-dim(::Grid{T, d, F}) where {T, d, F} = d
+gridnodes(G::Grid) = G.gridnodes
+dim(::Grid{T, dim, F}) where {T, dim, F} = dim
 
-Base.push!(G::Grid, g::GridNode) = push!(nodes(G), g)
-Base.append!(G::Grid, iter) = append!(nodes(G), iter)
-Base.pop!(G::Grid) = Base.pop!(nodes(G))
-Base.isempty(G::Grid) = Base.isempty(nodes(G))
-Base.findmin(G::Grid) = Base.findmin(image.(nodes(G)))
+## Abstract vector interface
+Base.length(G::Grid) = Base.length(gridnodes(G))
+Base.size(G::Grid) = (Base.length(G),)
+Base.IndexStyle(::Type{<:Grid}) = IndexLinear()
+Base.getindex(G::Grid, i::Int) = getindex(gridnodes(G), i)
 
-function points(G::Grid, C = nothing)
-    @unpack nodes = G
-    return [point(g, C) for g in nodes]
+
+# ## Mutate a grid
+Base.push!(G::Grid, g::GridNode) = Base.push!(gridnodes(G), g)
+Base.pop!(G::Grid) = Base.pop!(gridnodes(G))
+
+# ## Iterate over a grid
+Base.eltype(G::Grid) = Base.eltype(gridnodes(G))
+Base.isempty(G::Grid) = Base.isempty(gridnodes(G))
+function Base.iterate(G::Grid, state = 1)
+    return Base.iterate(gridnodes(G), state)
 end
 
-## Empty grid
-Grid(::Type{T}, dim::Int, fun) where T = Grid{T, dim, typeof(fun)}(GridNode{T, dim}[], fun)
+## So, we can call `maximum(G)` for a grid `G`
+Base.isless(g::GridNode, h::GridNode) = Base.isless(image(g), image(h))
+
+## So we can call `findmin(G)` for a grid `G`
+Base.keys(G::Grid) = Base.keys(gridnodes(G))
+Base.values(G::Grid) = Base.values(gridnodes(G))
+
+
+## Get float coordinates
+nodes(G::Grid) = map(node, G)
+
+function Base.print(io::IO, g::GridNode, kwargs...)
+    @unpack depth, odds, image = g
+    # print(io, "GridNode: \n")
+    print(io, "┌Node: ", odds, " ", node(g), "\n")
+    print(io, "└Depth: ", depth, " Image: ", image)
+    print(io, kwargs...)
+end
+
+Base.show(io::IO, ::MIME"text/plain", g::GridNode) = Base.print(io, g)
+
+function Base.show(io::IO, ::MIME"text/plain", G::Grid)
+    for g in G
+        print(io, g, "\n")
+    end
+end
+
+
+## Given a grid `G`, create new grid nodes for `G`
+# Take care of types
+function GridNode(::Grid{T, dim, F}, depth, odds, image) where {T, dim, F}
+    GridNode{T, dim}(Int(depth), collect(odds), T(image))
+end
+
+# Compute the image
+function GridNode(G::Grid, depth, odds)
+    float_coord = grid_getcoords(depth, odds)
+    image = fun(G)(float_coord...)
+    GridNode(G, depth, odds, image)
+end
+
+## Create an empty grid
+function Grid(::Type{T}, dim::Int, fun) where T
+    F = typeof(fun)
+    gridnodes = GridNode{T, dim}[]
+    return Grid{T, dim, F}(gridnodes, fun)
+end
 Grid(dim::Int, fun) = Grid(Float64, dim, fun)
+# Base.empty!(G::Grid{T, dim, F}) where {T, dim, F} = gridnodes(G) = GridNode{T, dim}[]
+Base.empty(G::Grid{T, dim, F}) where {T, dim, F} = Grid(T, dim, fun(G))
 
-## Generate nodes of a grid
-GridNode(G::Grid, odds, depth, image) = GridNode{typeof(image), dim(G)}(collect(odds), Int(depth), image)
-
-function GridNode(G::Grid, odds, depth)
-    node = grid_getcoords(odds, depth)
-    image = fun(G)(node...)
-    GridNode(G, odds, depth, image)
-end
-
-function GridNodes(G::Grid, iter_odds, depth)
-    Iterators.map(I -> GridNode(G, I, depth), iter_odds)
-end
-
-## Initial grid at some `depth`
+## Create full grid of depth `depth`
 function Grid(::Type{T}, dim::Int, fun, depth::Int) where T
-    G = Grid(T, dim, fun)
-    append!(G, GridNodes(G, oddsgrid(dim, depth), depth))
+    G = Grid(T, dim, fun) ## Empty grid
+    for oddpoint in grid_oddpoints(Val(dim), depth)
+        push!(G, GridNode(G, depth, oddpoint))
+    end
     return G
 end
 Grid(dim::Int, fun, depth::Int) = Grid(Float64, dim, fun, depth)
 
 ## Append in a grid `G` the next nodes (subdivisions) of a node `g`
-function nextleaves(odds::Vector{Int})
+# Given the vectors of odds `odds` representing `g`, returns
+# an iterator over the divisions of `g` into `2^dim` (where `dim == length(odds) = true`)
+# new points, one for each orthant.
+function nextleaves(odds::Vector)
     oodds = 2 .* odds
     col1 = oodds .+ 1
     col2 = oodds .- 1
@@ -96,52 +130,23 @@ function nextleaves(odds::Vector{Int})
 end
 
 function append_nextleaves!(G::Grid, g::GridNode)
-    @unpack odds, depth = g
-    nextodds = nextleaves(odds)
-    append!(G, GridNodes(G, nextodds, depth +1))
+    @unpack depth, odds = g
+    for oddpoint in nextleaves(odds)
+        push!(G, GridNode(G, depth +1, oddpoint))
+    end
     return G
 end
 
-"""
-    refine_grid(T=Float64, fun, C, m, dim; step₀ = Int(ceil(log2(C))),
-                G = Grid(dim, fun, max(0, depth₀)), isfine = _isHan,
-                append_subdivision! = append_nextleaves!)
 
-Returns a list of `grid_point` objects that form a refined grid satisfying the Han condition.
-
-# Arguments:
- - `fun`: The function to be evaluated at each point in the grid.
- - `C`: A parameter used in the Han condition.
- - `m`: Lower bound of the image.
- - `dim`: The dimension of the grid.
-
-# Keyword arguments:
- - `depth₀`: Depth of the initial grid.
- - `G`: Initial grid, default is grid of depth `depth₀`.
- - `isfine`: A function that determines whether a point is valid in the grid.
- - `append_subdivision`: A function that appends to the grid the subdivision of a point.
-"""
-function refine_grid(fun, C, m, dim; depth₀ = Int(ceil(log2(C))),
-                     G = Grid(dim, fun, max(0, depth₀)), isfine = _isHan,
-                     append_subdivision! = append_nextleaves!)
-    H = Grid(dim, fun)
-    while !(isempty(G))
-        g = pop!(G) # Removes an element of G and stores it at g.
-        @unpack odds, depth, image = g
-        if image < m
-            @warn "Small norm" image, m
-            return H # WARN Function returning two different types
-        end
-        if isfine(image, depth, C)
-            # println("Step:", depth, " C:", C, "--", isfine(image, depth, C), image)
-            push!(H, g)
-        else
-            append_subdivision!(G, g)
-        end
+function grid_groupbydepth(G::Grid{T, dim, F}) where {T, dim, F}
+    I = unique(depth.(G))
+    out = Dict(I .=> [empty(G) for _ in I ])
+    for g in G
+        d = depth(g)
+        push!(out[d], g)
     end
-    return H
+    return out
 end
-
 
 # All the evaluations of the function `fun` are done via this function.
 # So, modify here for more efficient implementations.
