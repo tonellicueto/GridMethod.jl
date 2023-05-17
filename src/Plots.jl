@@ -39,10 +39,12 @@ set_forplot(G) = eachrow(reduce(hcat, nodes(G)))
             seriestype := :scatter
             label := "Depth $d"
             # markershape := :circle
-            ms := f_ms(d - shift) # Marker size
-            mc := color # Marker color
+            ms := f_ms(d - shift) # Mark size
+            mc := color # Mark color
             ma := f_ma(d, dmin, dmax) # Mark alpha/opacity
             msw := .3 + (1 - f_ma(d, dmin, dmax))/2 # Border width (0 = No border)
+            # msw := 0
+            # msw := 0 # No border/stroke
             msc := color # Border color
             msa := f_ma(d, dmin, dmax) # Border alpha
             x, y
