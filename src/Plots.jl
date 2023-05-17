@@ -17,6 +17,7 @@ set_forplot(G) = eachrow(reduce(hcat, nodes(G)))
                    R = 20,
                    f_ms = i -> r + R*(.5)^i, # Marker size
                    f_ma = (d, dmin, dmax) -> (d - dmin)/(dmax - dmin), # Mark alpha/opacity
+                   f_msw = (d, dmin, dmax) -> r/10 + (1 - f_ma(d, dmin, dmax))/r, # Border width (0 = No border)
                    color = "rgb(238,37,35)"
                    )
     G, = sg.args
@@ -42,11 +43,10 @@ set_forplot(G) = eachrow(reduce(hcat, nodes(G)))
             ms := f_ms(d - shift) # Mark size
             mc := color # Mark color
             ma := f_ma(d, dmin, dmax) # Mark alpha/opacity
-            msw := .3 + (1 - f_ma(d, dmin, dmax))/2 # Border width (0 = No border)
-            # msw := 0
+            msw := f_msw(d, dmin, dmax) # Border/stroke width
             # msw := 0 # No border/stroke
             msc := color # Border color
-            msa := f_ma(d, dmin, dmax) # Border alpha
+            msa := f_ma(d, dmin, dmax)/r # Border alpha
             x, y
         end
     end
