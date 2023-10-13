@@ -27,8 +27,8 @@ end
 """
     norm1(F)
 
-L_1 norm of a system of polynomials.
+1-norm of a system of polynomials.
 """
-function norm1(F; kwargs...)
+function 1norm(F; kwargs...)
     return norm(F, abs∘last, maximum; kwargs...)
 end

@@ -1,5 +1,5 @@
 
-function constant(x, F, norm_sys; get_sigma, norm_image, choosing, kwargs...)
+function condition(x, F, norm_sys; get_sigma, norm_image, choosing, kwargs...)
     norm₀, Δ₀ = norm_sys(F; kwargs...), Δ(F)
     x₀ = collect(promote(x...))
     (fx, Jx) = eval_and_J(x₀, F; kwargs...)
@@ -16,7 +16,7 @@ Returns a function that calculates the condition number of a system of polynomia
 # Keyword arguments:
  - `compiled`: A boolean indicating whether the system should be compiled before being passed to the condition number function.
 """
-K(x, F; kwargs...) = constant(x, F, Wnorm;
+K(x, F; kwargs...) = condition(x, F, Wnorm;
                               get_sigma = get_sigmaK,
                               norm_image = normsqsq,
                               choosing = (x,y)->sqrt(x+y),
@@ -39,15 +39,15 @@ Returns a function that calculates the condition number of a system of polynomia
 # Keyword arguments:
  - `compiled`: A boolean indicating whether the system should be compiled before being passed to the condition number function.
 """
-C(x, F; kwargs...) = constant(x, F, norm1;
+C(x, F; kwargs...) = condition(x, F, 1norm;
                               get_sigma = get_sigmaC,
                               norm_image = fx -> maximum(abs.(fx)),
                               choosing = max,
                               kwargs...)
 
-get_sigmaC(x, Jx, Δ) = maximum(norm1, eachcol(inv(Δ)*Jx*D(x)))
+get_sigmaC(x, Jx, Δ) = maximum(1norm, eachcol(inv(Δ)*Jx*D(x)))
 
-# function C(norm1, Δ)
+# function C(1norm, Δ)
 #     (xfJ) -> begin
 #         # unpack
 #         (x, fx, Jx) = xfJ
@@ -56,6 +56,6 @@ get_sigmaC(x, Jx, Δ) = maximum(norm1, eachcol(inv(Δ)*Jx*D(x)))
 #         # σ = inv(maximum(M))
 #         σ = maximum(M)
 #         f2 = maximum(abs.(fx))
-#         return norm1/max(f2, σ)
+#         return 1norm/max(f2, σ)
 #     end
 # end

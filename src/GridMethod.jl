@@ -15,7 +15,7 @@ include("Utils.jl")
 
 export norm1, C, Wnorm, K
 include("Norms.jl")
-include("Const.jl")
+include("ConditionNumbers.jl")
 
 using RecipesBase # For Plots recipes
 include("Plots.jl")
