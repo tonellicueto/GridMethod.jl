@@ -25,7 +25,7 @@ function Wnorm(F; kwargs...)
 end
 
 """
-    norm1(F)
+    Onorm(F)
 
 1-norm of a system of polynomials.
 """

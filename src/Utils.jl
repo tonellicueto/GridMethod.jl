@@ -29,7 +29,7 @@ function last_sval(M)
 end
 
 normsqsq(A) = sum(a -> a^2, A)
-norm1(A::AbstractArray) = maximum(abs.(A))
+Onorm(A::AbstractArray) = maximum(abs.(A))
 
 homothecy(m) = x -> m.*x
 translation(a) = x -> x.+a
