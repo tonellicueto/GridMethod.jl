@@ -29,6 +29,6 @@ end
 
 1-norm of a system of polynomials.
 """
-function 1norm(F; kwargs...)
+function Onorm(F; kwargs...)
     return norm(F, abs∘last, maximum; kwargs...)
 end

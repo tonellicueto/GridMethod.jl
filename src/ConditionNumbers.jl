@@ -39,15 +39,15 @@ Returns a function that calculates the condition number of a system of polynomia
 # Keyword arguments:
  - `compiled`: A boolean indicating whether the system should be compiled before being passed to the condition number function.
 """
-C(x, F; kwargs...) = condition(x, F, 1norm;
+C(x, F; kwargs...) = condition(x, F, Onorm;
                               get_sigma = get_sigmaC,
                               norm_image = fx -> maximum(abs.(fx)),
                               choosing = max,
                               kwargs...)
 
-get_sigmaC(x, Jx, Δ) = 1/maximum(1norm, eachcol(inv(Δ)*inv(Jx)))
+get_sigmaC(x, Jx, Δ) = 1/maximum(Onorm, eachcol(inv(Δ)*inv(Jx)))
 
-# function C(1norm, Δ)
+# function C(Onorm, Δ)
 #     (xfJ) -> begin
 #         # unpack
 #         (x, fx, Jx) = xfJ
@@ -56,6 +56,6 @@ get_sigmaC(x, Jx, Δ) = 1/maximum(1norm, eachcol(inv(Δ)*inv(Jx)))
 #         # σ = inv(maximum(M))
 #         σ = maximum(M)
 #         f2 = maximum(abs.(fx))
-#         return 1norm/max(f2, σ)
+#         return Onorm/max(f2, σ)
 #     end
 # end
