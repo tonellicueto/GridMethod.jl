@@ -45,7 +45,7 @@ C(x, F; kwargs...) = condition(x, F, 1norm;
                               choosing = max,
                               kwargs...)
 
-get_sigmaC(x, Jx, Δ) = maximum(1norm, eachcol(inv(Δ)*Jx*D(x)))
+get_sigmaC(x, Jx, Δ) = 1/maximum(1norm, eachcol(inv(Δ)*inv(Jx)))
 
 # function C(1norm, Δ)
 #     (xfJ) -> begin
