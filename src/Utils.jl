@@ -49,38 +49,4 @@ function monomial(X, I, n=length(X))
     prod(i -> X[i]^I[i], 1:n)
 end
 
-"""
-    Id(::Type{T}, n)
 
-Returns the identity matrix of size `n` and type `T`.
-"""
-function Id(::Type{T}, n) where T
-  return LA.Diagonal(ones(T, n))
-end
-
-"""
-    Id(iter)
-
-Returns the identity matrix of size `length(iter)` and type `eltype(iter)`.
-"""
-Id(iter) = Id(eltype(iter), length(iter))
-# diagonal(v) = cat(v...; dims = (1, 2)) # not using LinearAlgebra.jl
-
-"""
-    Δ(F)
-
-Returns the degree matrix of a system of polynomials `F`.
-"""
-function Δ(F)
-    return LA.Diagonal(degrees(F))
-end
-
-"""
-    D(x)
-
-Returns the matrix difference between the identity matrix and the outer product of `x` and its conjugate transpose.
-"""
-function D(x)
-    # println(typeof(x), " ", x)
-    return Id(x) - x*transpose(conj(x))
-end
