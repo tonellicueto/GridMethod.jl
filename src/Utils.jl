@@ -21,6 +21,7 @@ rand_poly(X, d; coeffs = I -> randn(Float64), n = length(X), homo = false) =
     rand_poly(Float64, X, d; coeffs = coeffs, n = n, homo = homo)
 
 const ε = 1e-6 # bound for meaning zero
+
 function last_sval(M)
     # U, svals, Vt = LA.svd(M; alg = LA.QRIteration())
     svals = LA.svdvals(M) # Does not have option 'alg'.

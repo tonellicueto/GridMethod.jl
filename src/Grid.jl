@@ -39,7 +39,7 @@ fun(G::Grid) = G.fun
 gridnodes(G::Grid) = G.gridnodes
 dim(::Grid{T, dim, F}) where {T, dim, F} = dim
 
-## Abstract vector interface
+## We are allowing the basic functions of julio to work in new data types
 Base.length(G::Grid) = Base.length(gridnodes(G))
 Base.size(G::Grid) = (Base.length(G),)
 Base.IndexStyle(::Type{<:Grid}) = IndexLinear()
@@ -65,7 +65,7 @@ Base.keys(G::Grid) = Base.keys(gridnodes(G))
 Base.values(G::Grid) = Base.values(gridnodes(G))
 
 
-## Get float coordinates
+## Get float coordinates -- Move this somewhere
 nodes(G::Grid) = map(node, G)
 
 function Base.print(io::IO, g::GridNode, kwargs...)
