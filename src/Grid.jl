@@ -28,6 +28,9 @@ function node(g::GridNode)
     return grid_getcoords(depth, odds)
 end
 
+## Get float coordinates 
+nodes(G::Grid) = map(node, G)
+
 #### Grid interface
 mutable struct Grid{T, dim, F}
     gridnodes::Vector{GridNode{T, dim}}
@@ -39,7 +42,7 @@ fun(G::Grid) = G.fun
 gridnodes(G::Grid) = G.gridnodes
 dim(::Grid{T, dim, F}) where {T, dim, F} = dim
 
-## Abstract vector interface
+## We are allowing the basic functions of julio to work in new data types
 Base.length(G::Grid) = Base.length(gridnodes(G))
 Base.size(G::Grid) = (Base.length(G),)
 Base.IndexStyle(::Type{<:Grid}) = IndexLinear()
@@ -63,10 +66,6 @@ Base.isless(g::GridNode, h::GridNode) = Base.isless(image(g), image(h))
 ## So we can call `findmin(G)` for a grid `G`
 Base.keys(G::Grid) = Base.keys(gridnodes(G))
 Base.values(G::Grid) = Base.values(gridnodes(G))
-
-
-## Get float coordinates
-nodes(G::Grid) = map(node, G)
 
 function Base.print(io::IO, g::GridNode, kwargs...)
     @unpack depth, odds, image = g

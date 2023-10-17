@@ -16,10 +16,10 @@ Returns a grid satisfying the Han condition.
  - `depth₀`: Depth of the initial grid.
  - `G₀`: Initial grid, default is grid of depth `depth₀`.
 """
-function grid_Han(::Type{T}, fun, C, m, dim;
+function grid_Han(::Type{T}, objective_to_minimize, C, m, dim;
                      depth₀ = Int(ceil(log2(C)))) where T
-    H = Grid(T, dim, fun) ## Empty grid
-    G = Grid(T, dim, fun, max(0, depth₀)) ## Grid of min depth.
+    H = Grid(T, dim, objective_to_minimize) ## Empty grid
+    G = Grid(T, dim, objective_to_minimize, max(0, depth₀)) ## Grid of min depth.
     while !(isempty(G))
         g = pop!(G) # Removes an element of G and stores it at g.
         @unpack odds, depth, image = g
@@ -37,8 +37,8 @@ function grid_Han(::Type{T}, fun, C, m, dim;
     return H
 end
 
-grid_Han(fun, C, m, dim;
-         depth₀ = Int(ceil(log2(C)))) = grid_Han(Float64, fun, C, m, dim;
+grid_Han(objective_to_minimize, C, m, dim;
+         depth₀ = Int(ceil(log2(C)))) = grid_Han(Float64, objective_to_minimize, C, m, dim;
                                                  depth₀ = depth₀)
 
 Han_factor(C, L) = 1 - L/C
