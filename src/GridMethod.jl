@@ -13,7 +13,7 @@ using DocStringExtensions
 export rand_poly
 include("Utils.jl")
 
-export Onorm, C, Wnorm, K
+export Onorm, Ocond, Wnorm, Wcond
 include("Norms.jl")
 include("ConditionNumbers.jl")
 
