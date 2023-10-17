@@ -51,7 +51,7 @@ Returns a function that calculates the condition number of a system of polynomia
  - `compiled`: A boolean indicating whether the system should be compiled before being passed to the condition number function.
 """
 
-local_Wcond(F,x; kwargs...) = condition(F,x, Wnorm;
+Wcond(F,x; kwargs...) = local_condition(F,x, Wnorm;
                               degreematrix = sqDelta,
                               get_sigma = lastsingvaluesq,
                               norm_image = normsqsq,
@@ -84,7 +84,7 @@ Returns a function that calculates the condition number of a system of polynomia
 # Keyword arguments:
  - `compiled`: A boolean indicating whether the system should be compiled before being passed to the condition number function.
 """
-Ocond(F, x; kwargs...) = condition(F, x, Onorm;
+Ocond(F, x; kwargs...) = local_condition(F, x, Onorm;
                               degreematrix = Delta,
                               get_sigma = lastsigma_inf,
                               norm_image = fx -> maximum(abs.(fx)),
