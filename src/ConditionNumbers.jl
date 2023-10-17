@@ -84,7 +84,7 @@ Returns a function that calculates the condition number of a system of polynomia
 # Keyword arguments:
  - `compiled`: A boolean indicating whether the system should be compiled before being passed to the condition number function.
 """
-Ocond(x, F; kwargs...) = condition(x, F, Onorm;
+Ocond(F, x; kwargs...) = condition(F, x, Onorm;
                               degreematrix = Delta,
                               get_sigma = lastsigma_inf,
                               norm_image = fx -> maximum(abs.(fx)),
