@@ -1,8 +1,8 @@
 function local_condition(F,x, norm_sys; degreematrix, get_sigma, norm_image, norm_denominator, kwargs...)
-    norm₀ = norm_sys(F; kwargs...)
+    norm₀ = norm_sys(F; kwargs...) #addway to input the precomputed norm
     x₀ = collect(promote(x...))
-    (fx, Jfx) = eval_and_J(x₀, F; kwargs...)
-    σ = get_sigma(x₀, Jfx, degreematrix(F))
+    (fx, Jfx) = eval_and_J(x₀, F; kwargs...) #add way to input the precomputed value and Jacobian
+    σ = get_sigma(x₀, Jfx, degreematrix(F)) #add way to input the precomputed degreematrix
     normfx = norm_image(fx)
     return norm₀/norm_denominator(normfx, σ)
 end
@@ -34,12 +34,12 @@ function tangent_proj(x)
 end
 
 """
-    Δ(F)
+   sqDelta(F)
 
 Returns the degree matrix of a system of polynomials `F`.
 """
 function sqDelta(F)
-    return sqrt(LA.Diagonal(degrees(F)))
+    return LA.sqrt(LA.Diagonal(degrees(F))) #simplify this...
 end
 
 """
@@ -68,7 +68,7 @@ lastsingvaluesq(x, Jfx, sqΔ) = last_sval(inv(sqΔ)*Jfx*tangent_proj(x))^2
 
 
 """
-    Δ(F)
+    Delta(F)
 
 Returns the degree matrix of a system of polynomials `F`.
 """
@@ -91,7 +91,7 @@ Ocond(x, F; kwargs...) = condition(x, F, Onorm;
                               choosing = max,
                               kwargs...)
 
-lastsigma_inf(x, Jfx, Δ) = 1/maximum(Onorm, eachrow(inv(Δ)*inv(Jfx)))
+lastsigma_inf(x, Jfx, Δ) = 1/LA.opnorm(inv(Jfx)*Δ,Inf)
 
 # function C(Onorm, Δ)
 #     (xfJ) -> begin

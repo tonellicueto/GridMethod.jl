@@ -40,3 +40,17 @@ end
 function Onorm(F; kwargs...)
     return unfold_do_fold(F, abs∘last, maximum; kwargs...)
 end
+
+
+"""
+THINGS TO DO:
+1) Define normalization of a system:
+Wnormalize(F) : divide each polynomial by its Wnorm
+Onormalize(F) : divide each polynomial by its Onorm
+2) Define
+LInftynorm(F) : compute maximum of absolute value of each polynomial on sphere and take the maximum.
+  -- heuristics: find something...
+  -- construct grid and maximize over it.
+and
+LInftynormalize(F)
+"""
