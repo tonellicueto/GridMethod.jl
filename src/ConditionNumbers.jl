@@ -55,7 +55,7 @@ Wcond(F,x; kwargs...) = local_condition(F,x, Wnorm;
                               degreematrix = sqDelta,
                               get_sigma = lastsingvaluesq,
                               norm_image = normsqsq,
-                              choosing = (x,y)->sqrt(x+y),
+                              norm_denominator = (x,y)->sqrt(x+y),
                               kwargs...)
 
 lastsingvaluesq(x, Jfx, sqΔ) = last_sval(inv(sqΔ)*Jfx*tangent_proj(x))^2
@@ -88,7 +88,7 @@ Ocond(F, x; kwargs...) = local_condition(F, x, Onorm;
                               degreematrix = Delta,
                               get_sigma = lastsigma_inf,
                               norm_image = fx -> maximum(abs.(fx)),
-                              choosing = max,
+                              norm_denominator = max,
                               kwargs...)
 
 lastsigma_inf(x, Jfx, Δ) = 1/LA.opnorm(inv(Jfx)*Δ,Inf)
