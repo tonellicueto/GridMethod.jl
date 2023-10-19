@@ -28,14 +28,14 @@ function node(g::GridNode)
     return grid_getcoords(depth, odds)
 end
 
-## Get float coordinates 
-nodes(G::Grid) = map(node, G)
-
 #### Grid interface
 mutable struct Grid{T, dim, F}
     gridnodes::Vector{GridNode{T, dim}}
     fun::F
 end
+
+## Get float coordinates
+nodes(G::Grid) = map(node, G)
 
 ## Access to grid
 fun(G::Grid) = G.fun

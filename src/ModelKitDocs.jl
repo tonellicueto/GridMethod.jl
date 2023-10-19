@@ -15,7 +15,8 @@ function terms end
 ## Getting terms of a system; outputs a vector of iters.
 function terms(sys;
                vars = get_vars(sys),
-               expanded = true)
+               expanded = true,
+               kwargs...)
     return Iterators.map(poly -> terms(poly; vars = vars, expanded = expanded),
                          get_polys(sys))
 end
