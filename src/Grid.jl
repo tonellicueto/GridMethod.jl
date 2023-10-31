@@ -1,3 +1,38 @@
+## Structure defining a grid node
+
+struct GridNode{T, dim}
+    depth::Int
+    coordinates::Vector{T}
+    image::Vector{T}
+    jacobian::Matrix{T}
+    condition::T
+end
+
+#Functions for GridNode
+depth(g::GridNode) = g.depth
+image(g::GridNode) = g.image
+jacobian(g::GridNode) = g.jacobian
+condition(g::GridNode) = g.condition
+dim(::GridNode{T, dim}) where {T, dim} = dim
+
+function coordinates(g::GridNode)
+    @unpack depth, int_coordinates = g
+    map(n -> n/exp2(g.depth), g.int_coordinates)
+
+end
+
+## Structure defining the grid
+
+mutable struct Grid{T, dim, F}
+    gridnodes::Vector{GridNode{T, dim}}
+    est_condition::T
+end
+
+#Functions to access Grid
+gridnodes(G::Grid) = G.gridnodes
+est_condition(G::Grid) = G.est_condition
+dim(::Grid{T, dim, F}) where {T, dim, F} = dim
+
 
 ## Utils for Grid
 function grid_oddcoords(depth::Int)
@@ -13,34 +48,23 @@ function grid_getcoords(depth, iter)
     return map(n -> n/exp2(depth), iter)
 end
 
-## A grid node
-struct GridNode{T, dim}
-    depth::Int
-    odds::Vector{Int}
-    image::T
-end
 
-depth(g::GridNode) = g.depth
-image(g::GridNode) = g.image
-dim(::GridNode{T, dim}) where {T, dim} = dim
+
+
+
 function node(g::GridNode)
     @unpack depth, odds = g
     return grid_getcoords(depth, odds)
 end
 
-## Get float coordinates 
-nodes(G::Grid) = map(node, G)
 
-#### Grid interface
-mutable struct Grid{T, dim, F}
-    gridnodes::Vector{GridNode{T, dim}}
-    fun::F
-end
+
+## Get float coordinates
+nodes(G::Grid) = map(node, G)
 
 ## Access to grid
 fun(G::Grid) = G.fun
-gridnodes(G::Grid) = G.gridnodes
-dim(::Grid{T, dim, F}) where {T, dim, F} = dim
+
 
 ## We are allowing the basic functions of julio to work in new data types
 Base.length(G::Grid) = Base.length(gridnodes(G))
