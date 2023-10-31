@@ -10,87 +10,52 @@ end
 
 #Functions for GridNode
 depth(g::GridNode) = g.depth
+coordinates(g::GridNode) = g.coordinates
 image(g::GridNode) = g.image
 jacobian(g::GridNode) = g.jacobian
 condition(g::GridNode) = g.condition
 dim(::GridNode{T, dim}) where {T, dim} = dim
 
-function coordinates(g::GridNode)
-    @unpack depth, int_coordinates = g
-    map(n -> n/exp2(g.depth), g.int_coordinates)
-
-end
-
 ## Structure defining the grid
-
 mutable struct Grid{T, dim, F}
+    polysys::F 
     gridnodes::Vector{GridNode{T, dim}}
     est_condition::T
 end
 
 #Functions to access Grid
+polysys(G::Grid) = G.polysys
 gridnodes(G::Grid) = G.gridnodes
 est_condition(G::Grid) = G.est_condition
 dim(::Grid{T, dim, F}) where {T, dim, F} = dim
 
+## Extension of Base functions of julia to Grid Data Types
 
-## Utils for Grid
-function grid_oddcoords(depth::Int)
-    bound = 2^(depth)-1
-    return -bound:2:bound
-end
-
-function grid_oddpoints(::Val{dim}, depth) where dim
-    return Iterators.product(ntuple(_ -> grid_oddcoords(depth), Val(dim))...)
-end
-
-function grid_getcoords(depth, iter)
-    return map(n -> n/exp2(depth), iter)
-end
-
-
-
-
-
-function node(g::GridNode)
-    @unpack depth, odds = g
-    return grid_getcoords(depth, odds)
-end
-
-
-
-## Get float coordinates
-nodes(G::Grid) = map(node, G)
-
-## Access to grid
-fun(G::Grid) = G.fun
-
-
-## We are allowing the basic functions of julio to work in new data types
 Base.length(G::Grid) = Base.length(gridnodes(G))
 Base.size(G::Grid) = (Base.length(G),)
 Base.IndexStyle(::Type{<:Grid}) = IndexLinear()
 Base.getindex(G::Grid, i::Int) = getindex(gridnodes(G), i)
 
 
-# ## Mutate a grid
-Base.push!(G::Grid, g::GridNode) = Base.push!(gridnodes(G), g)
-Base.pop!(G::Grid) = Base.pop!(gridnodes(G))
+## Base function to put a node in and a node out
+Base.push!(G::Grid, g::GridNode) = Base.push!(gridnodes(G), g) #Add node g to grid G
+Base.pop!(G::Grid) = Base.pop!(gridnodes(G)) #Picks a node g from G and removes it
 
-# ## Iterate over a grid
+## Iterate over a grid
 Base.eltype(G::Grid) = Base.eltype(gridnodes(G))
 Base.isempty(G::Grid) = Base.isempty(gridnodes(G))
 function Base.iterate(G::Grid, state = 1)
     return Base.iterate(gridnodes(G), state)
 end
 
-## So, we can call `maximum(G)` for a grid `G`
-Base.isless(g::GridNode, h::GridNode) = Base.isless(image(g), image(h))
+## So, we can call `maximum(G)` for a grid `G` to compute G.est_condition
+Base.isless(g::GridNode, h::GridNode) = Base.isless(condition(g), condition(h))
 
-## So we can call `findmin(G)` for a grid `G`
+## So we can call `findmax(G)` for a grid `G`
 Base.keys(G::Grid) = Base.keys(gridnodes(G))
 Base.values(G::Grid) = Base.values(gridnodes(G))
 
+##TODO: Adapt this to the new format of Grid Node. Print depth and coordinates.  
 function Base.print(io::IO, g::GridNode, kwargs...)
     @unpack depth, odds, image = g
     # print(io, "GridNode: \n")
@@ -108,12 +73,13 @@ function Base.show(io::IO, ::MIME"text/plain", G::Grid)
 end
 
 
-## Given a grid `G`, create new grid nodes for `G`
+## TODO: Adapt to new definition of GridNode
 # Take care of types
 function GridNode(::Grid{T, dim, F}, depth, odds, image) where {T, dim, F}
     GridNode{T, dim}(Int(depth), collect(odds), T(image))
 end
 
+##TODO: Change to reflect the new proccedure: it should take a polynomial and evaluate it at the floating coordinates. 
 # Compute the image
 function GridNode(G::Grid, depth, odds)
     float_coord = grid_getcoords(depth, odds)
@@ -121,19 +87,33 @@ function GridNode(G::Grid, depth, odds)
     GridNode(G, depth, odds, image)
 end
 
-## Create an empty grid
-function Grid(::Type{T}, dim::Int, fun) where T
-    F = typeof(fun)
+## Create an empty grid TODO: Check how to put a zero as est_condition when condition has not been estimated
+function Grid(::Type{T}, dim::Int, polysys) where T
+    F = typeof(polysys)
     gridnodes = GridNode{T, dim}[]
-    return Grid{T, dim, F}(gridnodes, fun)
+    return Grid{T, dim, F}(polysys,gridnodes,0)
 end
-Grid(dim::Int, fun) = Grid(Float64, dim, fun)
+Grid(dim::Int, polysys) = Grid(Float64, dim, polysys) #If T is not specified, we use Float64
 # Base.empty!(G::Grid{T, dim, F}) where {T, dim, F} = gridnodes(G) = GridNode{T, dim}[]
-Base.empty(G::Grid{T, dim, F}) where {T, dim, F} = Grid(T, dim, fun(G))
+Base.empty(G::Grid{T, dim, F}) where {T, dim, F} = Grid(T, dim, polysys(G))
 
 ## Create full grid of depth `depth`
-function Grid(::Type{T}, dim::Int, fun, depth::Int) where T
-    G = Grid(T, dim, fun) ## Empty grid
+
+## InitialGrid: Rewrite to output an initial grid with all points of a given depth.
+## TODO: Rewrite code to generate initial grid. Maybe add image and Jacobian while we are at it!
+
+function grid_oddcoords(depth::Int)
+    bound = 2^(depth)-1
+    return -bound:2:bound
+end
+
+function grid_oddpoints(::Val{dim}, depth) where dim
+    return Iterators.product(ntuple(_ -> grid_oddcoords(depth), Val(dim))...)
+end
+
+
+function Grid(::Type{T}, dim::Int, polysys, depth::Int) where T
+    G = Grid(T, dim, polysys) ## Empty grid
     for oddpoint in grid_oddpoints(Val(dim), depth)
         push!(G, GridNode(G, depth, oddpoint))
     end
@@ -145,6 +125,8 @@ Grid(dim::Int, fun, depth::Int) = Grid(Float64, dim, fun, depth)
 # Given the vectors of odds `odds` representing `g`, returns
 # an iterator over the divisions of `g` into `2^dim` (where `dim == length(odds) = true`)
 # new points, one for each orthant.
+##TODO: Rewrite for FloatingPoint Coordinates 
+##TODO: Name should specify type of refinement
 function nextleaves(odds::Vector)
     oodds = 2 .* odds
     col1 = oodds .+ 1
