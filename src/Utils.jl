@@ -9,6 +9,7 @@ Returns a random polynomial of coefficient-type `T` in variables `X` with degree
  - `coeffs`: A function that takes a tuple of exponents and returns a coefficient.
  - `n`: The number of variables.
 """
+
 function rand_poly(::Type{T}, X, d; coeffs = I -> randn(T), n = length(X), homo = false) where T
     if homo
         expos = Combinatorics.multiexponents(n, d)

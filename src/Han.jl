@@ -16,6 +16,13 @@ Returns a grid satisfying the Han condition.
  - `depth₀`: Depth of the initial grid.
  - `G₀`: Initial grid, default is grid of depth `depth₀`.
 """
+
+##TODO: Rewrite Han to directly compute the grid.
+## It should initiate computing the degree matrix, the norm of each polynomial in the system and normalize each polynomial in the system by its norm.
+## It should start subdividing storing the value, jacobian, and condition at each point of the grid.
+## It should output the final grid, together with the upper estimate of the condition number and the normalized system.
+## One can write a subprogram to normalize the system, i.e., divide each polynomial by its norm.
+
 function grid_Han(::Type{T}, objective_to_minimize, C, m, dim;
                      depth₀ = Int(ceil(log2(C)))) where T
     H = Grid(T, dim, objective_to_minimize) ## Empty grid
