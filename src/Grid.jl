@@ -1,4 +1,5 @@
 ## Structure defining a grid node
+using Parameters
 
 struct GridNode{T, dim}
     depth::Int
@@ -14,7 +15,7 @@ coordinates(g::GridNode) = g.coordinates
 image(g::GridNode) = g.image
 jacobian(g::GridNode) = g.jacobian
 condition(g::GridNode) = g.condition
-dim(::GridNode{T, dim}) where {T, dim} = dim
+dim(g::GridNode) = typeof(g).parameters[2]
 
 ## Structure defining the grid
 mutable struct Grid{T, dim, F}
@@ -27,7 +28,7 @@ end
 polysys(G::Grid) = G.polysys
 gridnodes(G::Grid) = G.gridnodes
 est_condition(G::Grid) = G.est_condition
-dim(::Grid{T, dim, F}) where {T, dim, F} = dim
+dim(G::Grid) = typeof(G).parameters[2] 
 
 ## Extension of Base functions of julia to Grid Data Types
 
@@ -56,13 +57,13 @@ Base.keys(G::Grid) = Base.keys(gridnodes(G))
 Base.values(G::Grid) = Base.values(gridnodes(G))
 
 ##TODO: Adapt this to the new format of Grid Node. Print depth and coordinates.  
-function Base.print(io::IO, g::GridNode, kwargs...)
-    @unpack depth, odds, image = g
-    # print(io, "GridNode: \n")
-    print(io, "┌Node: ", odds, " ", node(g), "\n")
-    print(io, "└Depth: ", depth, " Image: ", image)
-    print(io, kwargs...)
-end
+#function Base.print(io::IO, g::GridNode, kwargs...)
+#    @unpack depth, odds, image = g
+#    # print(io, "GridNode: \n")
+#    print(io, "┌Node: ", odds, " ", node(g), "\n")
+#    print(io, "└Depth: ", depth, " Image: ", image)
+#    print(io, kwargs...)
+#end
 
 Base.show(io::IO, ::MIME"text/plain", g::GridNode) = Base.print(io, g)
 
@@ -135,8 +136,8 @@ function nextleaves(odds::Vector)
 end
 
 function append_nextleaves!(G::Grid, g::GridNode)
-    @unpack depth, odds = g
-    for oddpoint in nextleaves(odds)
+    @unpack depth, coordinates = g
+    for oddpoint in nextleaves(coordinates)
         push!(G, GridNode(G, depth +1, oddpoint))
     end
     return G
