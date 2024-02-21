@@ -1,5 +1,7 @@
-## Structure defining a grid node
+# Structure defining a grid node
 using Parameters
+
+import Base: ==
 
 struct GridNode{T, dim}
     depth::Int
@@ -17,7 +19,18 @@ jacobian(g::GridNode) = g.jacobian
 condition(g::GridNode) = g.condition
 dim(g::GridNode) = typeof(g).parameters[2]
 
-## Structure defining the grid
+function ==(node1::GridNode{T, dim}, node2::GridNode{T, dim}) where {T, dim}
+    return (
+        node1.depth == node2.depth
+        && node1.coordinates == node2.coordinates
+        && node1.image == node2.image
+        && node1.jacobian == node2.jacobian
+        && node1.condition == node2.condition
+    )
+end
+
+
+# Structure defining the grid
 mutable struct Grid{T, dim, F}
     polysys::F 
     gridnodes::Vector{GridNode{T, dim}}
@@ -74,10 +87,21 @@ function Base.show(io::IO, ::MIME"text/plain", G::Grid)
 end
 
 
-## TODO: Adapt to new definition of GridNode
-# Take care of types
-function GridNode(::Grid{T, dim, F}, depth, odds, image) where {T, dim, F}
-    GridNode{T, dim}(Int(depth), collect(odds), T(image))
+function GridNode(
+    ::Grid{T, dim, F},
+    depth::Int,
+    coordinates::Vector{T},
+    image::Vector{T},
+    jacobian::Matrix{T},
+    condition::T
+) where {T, dim, F}
+    GridNode{T, dim}(
+        depth,
+        coordinates,
+        image,
+        jacobian,
+        T(condition)
+    )
 end
 
 ##TODO: Change to reflect the new proccedure: it should take a polynomial and evaluate it at the floating coordinates. 

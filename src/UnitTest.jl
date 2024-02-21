@@ -35,6 +35,8 @@ include("Grid.jl")
     node2 = GridNode{Float64, 3}(2, coordinates2, image2, jacobian2, condition2)
 
     @test node < node2
+    @test node == node
+    @test node != node2
 
 end
 
@@ -59,10 +61,10 @@ end
     # Test Grid modification
     push!(grid, node2)
     @test length(grid) == 2
-    @test grid[2] === node2
+    @test grid[2] == node2
 
     popped_node = pop!(grid)
-    @test popped_node === node2
+    @test popped_node == node2
     @test length(grid) == 1
 
     # Add some more nodes to the Grid
@@ -79,9 +81,18 @@ end
 
     # Test iteration over Grid
     for (i, node) in enumerate(grid)
-        @test node === grid[i]
+        @test node == grid[i]
     end
 
     # Test findmax for Grid
     @test condition(findmax(grid)[1]) == 12.5
+
+    @test node2 == GridNode(
+        grid,
+        3,
+        [1.5, 2.5, 3.5],
+        [4.5, 5.5, 6.5],
+        [1.5 0.5; 0.5 1.5; 0.5 0.5],
+        15.0
+    )
 end
