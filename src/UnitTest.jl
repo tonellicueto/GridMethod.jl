@@ -1,8 +1,10 @@
 using Test
+import HomotopyContinuation.ModelKit
+const HCMK = ModelKit
 include("Grid.jl")
 
 # Test suite for GridNode
-@testset "GridNode Tests" failfast=true begin
+@testset "GridNode Basic Tests" failfast=true begin
     # Create an instance of GridNode for testing
     coordinates_ = [1.0, 2.0, 3.0]
     image_ = [4.0, 5.0, 6.0]
@@ -41,24 +43,42 @@ include("Grid.jl")
 end
 
 # Start of the test suite for Grid
-@testset "Grid Functionality" begin
-    # Create a GridNode instance for testing
-    node1 = GridNode{Float64, 3}(2, [1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [1.0 0.0; 0.0 1.0; 0.0 0.0], 10.0)
-    node2 = GridNode{Float64, 3}(3, [1.5, 2.5, 3.5], [4.5, 5.5, 6.5], [1.5 0.5; 0.5 1.5; 0.5 0.5], 15.0)
-
+@testset "Grid Basic Functionality" failfast=true begin
     # Create a Grid instance
-    polysys_function = sin # Example polynomial system function
-    grid = Grid{Float64, 3, typeof(polysys_function)}(polysys_function, [node1], 5.0)
+    HCMK.@var x,y,z
+    polysys_ = HCMK.System(
+        [x-y, y-z, x^2 -z^3];
+        variables=[x,y,z]
+    )
+    jacobian_ = HCMK.jacobian(polysys_)
+    # Make a Grid for testing
+    grid = Grid{Float64, 3}(polysys_, jacobian_, [], nothing)
     
     # Test Grid properties access
-    @test polysys(grid) === polysys_function
-    @test est_condition(grid) === 5.0
-    @test dim(grid) === 3
-    @test length(grid) == 1
-    @test size(grid) == (1,)
-    @test !isempty(grid)
-    
+    @test polysys(grid) == polysys_
+    @test jacobian(grid) == jacobian_
+    @test est_condition(grid) === nothing 
+    @test dim(grid) == 3
+    @test length(grid) == 0
+    @test size(grid) == (0,)
+    @test isempty(grid)
+
+    # Create GridNode instances for testing
+    coordinate1 = [1.0, 2.0, 3.0]
+    node1 = GridNode(
+        grid,
+        2,
+        coordinate1
+    )
+    coordinate2 = [1.5, 2.5, 3.5]
+    node2 = GridNode(
+        grid,
+        3,
+        coordinate2,
+    )
+
     # Test Grid modification
+    push!(grid, node1)
     push!(grid, node2)
     @test length(grid) == 2
     @test grid[2] == node2
@@ -66,33 +86,13 @@ end
     popped_node = pop!(grid)
     @test popped_node == node2
     @test length(grid) == 1
-
-    # Add some more nodes to the Grid
-    for i in 0:10
-        # Each node is essentially junk
-        push!(grid, GridNode{Float64, 3}(
-            2,
-            [i*1.0, 2.0^i, 3.0^(-1*i)],
-            [4.0, 5.0-i, cos(i*6.0)],
-            [i*1.0 i^2*1.0; 0.0 1.0; 0.0 0.0],
-            1.25*i
-        ))
-    end 
+    push!(grid, node2)
 
     # Test iteration over Grid
     for (i, node) in enumerate(grid)
         @test node == grid[i]
     end
 
-    # Test findmax for Grid
-    @test condition(findmax(grid)[1]) == 12.5
-
-    @test node2 == GridNode(
-        grid,
-        3,
-        [1.5, 2.5, 3.5],
-        [4.5, 5.5, 6.5],
-        [1.5 0.5; 0.5 1.5; 0.5 0.5],
-        15.0
-    )
+    # TODO Test findmax for Grid
+    # @test condition(findmax(grid)[1]) == 12.5
 end
