@@ -1,6 +1,7 @@
 # Structure defining a grid node
 using Parameters
 import Base: ==
+include("Polynomial.jl")
 
 struct GridNode{T, dim}
     depth::Int
@@ -30,15 +31,13 @@ end
 
 # Structure defining the grid
 mutable struct Grid{T, dim}
-    polysys
-    jacobian 
+    polysys::PolynomialSystem{T}
     gridnodes::Vector{GridNode{T, dim}}
     est_condition::Union{T, Nothing}
 end
 
 #Functions to access Grid
 polysys(G::Grid) = G.polysys
-jacobian(G::Grid) = G.jacobian
 gridnodes(G::Grid) = G.gridnodes
 est_condition(G::Grid) = G.est_condition
 dim(G::Grid) = typeof(G).parameters[2] 
@@ -48,7 +47,6 @@ Base.length(G::Grid) = Base.length(gridnodes(G))
 Base.size(G::Grid) = (Base.length(G),)
 Base.IndexStyle(::Type{<:Grid}) = IndexLinear()
 Base.getindex(G::Grid, i::Int) = getindex(gridnodes(G), i)
-
 
 # Base function to put a node in and a node out
 Base.push!(G::Grid, g::GridNode) = Base.push!(gridnodes(G), g) #Add node g to grid G
@@ -108,7 +106,7 @@ function GridNodeEvaluate(
         depth(node),
         coordinates(node),
         image(node),
-        jacobian(grid)(coordinates(node)),
+        polysys(grid).jacobian(coordinates(node)),
         nothing # TODO
     )
 end

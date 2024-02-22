@@ -51,12 +51,19 @@ end
         variables=[x,y,z]
     )
     jacobian_ = HCMK.jacobian(polysys_)
+
+    gridPolySys::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        x -> polysys_(x),
+        x -> HCMK.jacobian(polysys_)(x),
+        HCMK.degrees(polysys_),
+        HCMK.support_coefficients(polysys_)[2]
+    )
     # Make a Grid for testing
-    grid = Grid{Float64, 3}(polysys_, jacobian_, [], nothing)
+    grid = Grid{Float64, 3}(gridPolySys, [], nothing)
     
     # Test Grid properties access
-    @test polysys(grid) == polysys_
-    @test jacobian(grid) == jacobian_
+    @test polysys(grid) === gridPolySys
     @test est_condition(grid) === nothing 
     @test dim(grid) == 3
     @test length(grid) == 0
