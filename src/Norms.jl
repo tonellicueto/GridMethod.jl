@@ -14,7 +14,7 @@
 function unfold_do_fold(poly_sys, term_map, fold_sys = sum, fold_poly = sum; kwargs...)
     poly_values = Iterators.map(poly_terms -> fold_poly(term_map, poly_terms),
                                  terms(poly_sys; kwargs...)) ## See ModelKitDocs.jl
-    return fold_system(poly_values)
+    return fold_sys(poly_values)
 end
 
 """
