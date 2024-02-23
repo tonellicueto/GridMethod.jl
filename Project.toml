@@ -1,6 +1,6 @@
 name = "GridMethod"
 uuid = "86dfab32-2c2d-4347-886c-662f6c611e7a"
-authors = ["Laura Brustenga i Moncusí, Chris de la Valle and Josué Tonelli-Cueto"]
+authors = ["Laura Brustenga i Moncusí, Chris La Valle and Josué Tonelli-Cueto"]
 version = "0.1.0"
 
 [deps]
