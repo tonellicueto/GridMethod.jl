@@ -1,7 +1,11 @@
-using Test
+import GridMethod
 import HomotopyContinuation.ModelKit
 const HCMK = ModelKit
-include("Grid.jl")
+
+using Test
+using GridMethod.Polynomial
+using GridMethod.Grid
+using GridMethod.Norms
 
 # Test suite for GridNode
 @testset "GridNode Basic Tests" failfast=true begin
@@ -102,4 +106,23 @@ end
 
     # TODO Test findmax for Grid
     # @test condition(findmax(grid)[1]) == 12.5
+end
+
+@testset "Norm Tests" failfast=true begin
+    HCMK.@var x,y,z
+    polysys_ = HCMK.System(
+        [x-y, x+y-z, x^2 -z^3];
+        variables=[x,y,z]
+    )
+    jacobian_ = HCMK.jacobian(polysys_)
+
+    polysystem::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        x -> polysys_(x),
+        x -> HCMK.jacobian(polysys_)(x),
+        HCMK.degrees(polysys_),
+        HCMK.support_coefficients(polysys_)[2]
+    )
+    
+    @test polyNorm1(polysystem) == 1.0 
 end

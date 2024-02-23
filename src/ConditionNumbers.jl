@@ -1,3 +1,5 @@
+import "Polynomial.jl"
+
 function local_condition(F,x, norm_sys; degreematrix, get_sigma, norm_image, norm_denominator, kwargs...)
     norm₀ = norm_sys(F; kwargs...) #addway to input the precomputed norm
     x₀ = collect(promote(x...))
@@ -5,6 +7,13 @@ function local_condition(F,x, norm_sys; degreematrix, get_sigma, norm_image, nor
     σ = get_sigma(x₀, Jfx, degreematrix(F)) #add way to input the precomputed degreematrix
     normfx = norm_image(fx)
     return norm₀/norm_denominator(normfx, σ)
+end
+
+function local_condition_number(
+    polysys::PolynomialSystem{T},
+    x::Vector{T},
+    
+) where T
 end
 
 """
@@ -105,3 +114,5 @@ lastsigma_inf(x, Jfx, Δ) = 1/LA.opnorm(inv(Jfx)*Δ,Inf)
 #         return Onorm/max(f2, σ)
 #     end
 # end
+
+

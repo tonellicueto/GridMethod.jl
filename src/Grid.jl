@@ -1,7 +1,20 @@
-# Structure defining a grid node
+module Grid
 using Parameters
 import Base: ==
-include("Polynomial.jl")
+
+export GridNode
+export GridNodeEvaluate
+export Grid
+export depth
+export coordinates
+export image
+export jacobian
+export condition
+export dim
+export polysys
+export gridnodes
+export est_condition
+export dim
 
 struct GridNode{T, dim}
     depth::Int
@@ -395,3 +408,4 @@ end
 ##     return γ * minfx, n
 ## end
 #
+end

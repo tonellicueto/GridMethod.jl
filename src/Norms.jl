@@ -1,4 +1,3 @@
-
 """
     $(SIGNATURES)
 
@@ -10,6 +9,9 @@
     4) puts together the values of the polynomials using fold_sys (by default sum)
 """
 
+module Norms
+
+export polyNorm1
 
 function unfold_do_fold(poly_sys, term_map, fold_sys = sum, fold_poly = sum; kwargs...)
     poly_values = Iterators.map(poly_terms -> fold_poly(term_map, poly_terms),
@@ -41,7 +43,14 @@ function Onorm(F; kwargs...)
     return unfold_do_fold(F, abs∘last, maximum; kwargs...)
 end
 
+function polyNorm1(poly::PolynomialSystem{T})::T where T
+    # the 1-norm of a polynomial system is the maximum of
+    # the absolute sum of the coefficients from every polynomial
+    # in the system.
+    return maximum(map(sum, map(l -> map(abs, l),poly.coefficients)))
+end
 
+end # module
 """
 THINGS TO DO:
 1) Define normalization of a system:
