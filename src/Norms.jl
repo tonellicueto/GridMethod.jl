@@ -10,6 +10,7 @@
 """
 
 module Norms
+using ..Polynomial
 
 export polyNorm1
 

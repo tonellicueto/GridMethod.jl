@@ -1,13 +1,13 @@
 module GridMethod
 
 #Indicate modules for use
-#using UnPack # @unpack, @pack!
-#using DocStringExtensions: SIGNATURES, TYPEDEF
-#
-#using Combinatorics
-#import LinearAlgebra as LA
-#
-#using DocStringExtensions
+using UnPack # @unpack, @pack!
+using DocStringExtensions: SIGNATURES, TYPEDEF
+
+using Combinatorics
+import LinearAlgebra as LA
+
+using DocStringExtensions
 
 #Include files with extracode
 include("Polynomial.jl")
@@ -27,7 +27,7 @@ using .Norms
 
 # using StaticArrays # Maybe for GridNode
 include("Grid.jl")
-using .Grid
+using .GridModule
 
 #include("Han.jl")
 #

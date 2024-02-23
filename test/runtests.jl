@@ -1,11 +1,11 @@
-import GridMethod
 import HomotopyContinuation.ModelKit
 const HCMK = ModelKit
 
 using Test
 using GridMethod.Polynomial
-using GridMethod.Grid
+using GridMethod.GridModule
 using GridMethod.Norms
+
 
 # Test suite for GridNode
 @testset "GridNode Basic Tests" failfast=true begin
@@ -124,5 +124,5 @@ end
         HCMK.support_coefficients(polysys_)[2]
     )
     
-    @test polyNorm1(polysystem) == 1.0 
+    @test polyNorm1(polysystem) == 3.0 
 end

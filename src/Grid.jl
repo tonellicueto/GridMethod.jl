@@ -1,5 +1,6 @@
-module Grid
+module GridModule
 using Parameters
+using ..Polynomial
 import Base: ==
 
 export GridNode
