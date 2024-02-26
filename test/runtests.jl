@@ -55,12 +55,12 @@ end
         [x-y, y-z, x^2 -z^3];
         variables=[x,y,z]
     )
-    jacobian_ = HCMK.jacobian(polysys_)
+    jacobian_ = v -> HCMK.jacobian(polysys_, v)
 
     gridPolySys::PolynomialSystem{Float64} =
     PolynomialSystem{Float64}(
-        x -> polysys_(x),
-        x -> HCMK.jacobian(polysys_)(x),
+        v -> polysys_(v),
+        jacobian_,
         HCMK.degrees(polysys_),
         HCMK.support_coefficients(polysys_)[2]
     )
@@ -115,12 +115,12 @@ end
         [x-y, x+y-z, x^2 -z^3];
         variables=[x,y,z]
     )
-    jacobian_ = HCMK.jacobian(polysys_)
+    jacobian_ = v -> HCMK.jacobian(polysys_, v)
 
     polysystem::PolynomialSystem{Float64} =
     PolynomialSystem{Float64}(
-        x -> polysys_(x),
-        x -> HCMK.jacobian(polysys_)(x),
+        v -> polysys_(v),
+        jacobian_,
         HCMK.degrees(polysys_),
         HCMK.support_coefficients(polysys_)[2]
     )
@@ -138,4 +138,24 @@ end
 
 @testset "Condition Number Tests" failfast=true begin
     @test ConditionNumbers._vector_power(2.0, [0.0, -1.0, 1.5]) == [1.0, 0.5, 2*sqrt(2)]
+
+    # Set up polynomial system for condition number testing
+    HCMK.@var x,y,z
+    polysys_ = HCMK.System(
+        [x+y-z, x^2 -z^3];
+        variables=[x,y,z]
+    )
+    jacobian_ = v -> HCMK.jacobian(polysys_, v)
+
+    polysystem::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys_(v),
+        jacobian_,
+        HCMK.degrees(polysys_),
+        HCMK.support_coefficients(polysys_)[2]
+    )
+
+    _testVal = localC(polysystem, [1.0,1.0,1.0])
+    @info "$_testVal"
+    @test !isnothing(_testVal)
 end

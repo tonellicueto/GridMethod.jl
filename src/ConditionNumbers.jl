@@ -3,6 +3,8 @@ using LinearAlgebra
 using ..Polynomial
 using ..Norms
 
+export localC
+
 function local_condition(F,x, norm_sys; degreematrix, get_sigma, norm_image, norm_denominator, kwargs...)
     norm₀ = norm_sys(F; kwargs...) #addway to input the precomputed norm
     x₀ = collect(promote(x...))
@@ -102,14 +104,17 @@ function _vector_power(x::T, v::Vector{T}) where T <: Number
     return map(y -> x^y, v)
 end
 
-function localcond(
+function localC(
     f::PolynomialSystem{T},
     x::Vector{T};
     jacobian=nothing,
     jacobian_pinv=nothing
 ) where T <: Number
     xhinf = hinfNorm(x)
-    scale1 = norm(map((d,y) -> y/(d*xhinf^d), zip(f.degrees, f(x))), Inf)
+    scale1 = norm(
+        map(((d,y),) -> y/(d*xhinf^d), zip(f.degrees, f(x))),
+        Inf
+    )
 
     jacobian = isnothing(jacobian) ? f.jacobian(x) : jacobian
     jacobian_pinv = isnothing(jacobian_pinv) ? pinv(jacobian) : jacobian_pinv
@@ -122,7 +127,7 @@ function localcond(
     )
     scale2 = 1/matrixInfPNorm(jacobian_pinv; p=2)
 
-    return polyNorm1(f)/maximum(scale1, scale2)
+    return polyNorm1(f)/maximum((scale1, scale2))
 end
 
 # function C(Onorm, Δ)
