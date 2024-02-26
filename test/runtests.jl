@@ -3,8 +3,9 @@ const HCMK = ModelKit
 
 using Test
 using GridMethod.Polynomial
-using GridMethod.GridModule
 using GridMethod.Norms
+using GridMethod.ConditionNumbers
+using GridMethod.GridModule
 
 
 # Test suite for GridNode
@@ -125,4 +126,16 @@ end
     )
     
     @test polyNorm1(polysystem) == 3.0 
+
+    # hinfnorm
+    @test hinfNorm([0.1, -0.2]) == 1.0
+    @test hinfNorm([0.1, -2]) == 2.0
+
+    # matrixInfPNorm
+    A = [1 0 1; 1 1 0]
+    @test matrixInfPNorm(A; p=2)==sqrt(8)
+end
+
+@testset "Condition Number Tests" failfast=true begin
+    @test ConditionNumbers._vector_power(2.0, [0.0, -1.0, 1.5]) == [1.0, 0.5, 2*sqrt(2)]
 end

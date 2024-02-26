@@ -20,8 +20,9 @@ using .Polynomial
 include("Norms.jl")
 using .Norms
 
-#include("ConditionNumbers.jl")
-#
+include("ConditionNumbers.jl")
+using .ConditionNumbers
+
 #using RecipesBase # For Plots recipes
 #include("Plots.jl")
 

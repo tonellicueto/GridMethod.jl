@@ -1,4 +1,7 @@
-import "Polynomial.jl"
+module ConditionNumbers
+using LinearAlgebra
+using ..Polynomial
+using ..Norms
 
 function local_condition(F,x, norm_sys; degreematrix, get_sigma, norm_image, norm_denominator, kwargs...)
     norm₀ = norm_sys(F; kwargs...) #addway to input the precomputed norm
@@ -7,13 +10,6 @@ function local_condition(F,x, norm_sys; degreematrix, get_sigma, norm_image, nor
     σ = get_sigma(x₀, Jfx, degreematrix(F)) #add way to input the precomputed degreematrix
     normfx = norm_image(fx)
     return norm₀/norm_denominator(normfx, σ)
-end
-
-function local_condition_number(
-    polysys::PolynomialSystem{T},
-    x::Vector{T},
-    
-) where T
 end
 
 """
@@ -102,6 +98,33 @@ Ocond(F, x; kwargs...) = local_condition(F, x, Onorm;
 
 lastsigma_inf(x, Jfx, Δ) = 1/LA.opnorm(inv(Jfx)*Δ,Inf)
 
+function _vector_power(x::T, v::Vector{T}) where T <: Number
+    return map(y -> x^y, v)
+end
+
+function localcond(
+    f::PolynomialSystem{T},
+    x::Vector{T};
+    jacobian=nothing,
+    jacobian_pinv=nothing
+) where T <: Number
+    xhinf = hinfNorm(x)
+    scale1 = norm(map((d,y) -> y/(d*xhinf^d), zip(f.degrees, f(x))), Inf)
+
+    jacobian = isnothing(jacobian) ? f.jacobian(x) : jacobian
+    jacobian_pinv = isnothing(jacobian_pinv) ? pinv(jacobian) : jacobian_pinv
+    cols_pinv = eachcol(jacobian_pinv)
+    broadcast!(
+        (col, d) -> (xhinf^(d-1)*d^2)*col,
+        cols_pinv,
+        cols_pinv,
+        f.degrees,
+    )
+    scale2 = 1/matrixInfPNorm(jacobian_pinv; p=2)
+
+    return polyNorm1(f)/maximum(scale1, scale2)
+end
+
 # function C(Onorm, Δ)
 #     (xfJ) -> begin
 #         # unpack
@@ -114,5 +137,4 @@ lastsigma_inf(x, Jfx, Δ) = 1/LA.opnorm(inv(Jfx)*Δ,Inf)
 #         return Onorm/max(f2, σ)
 #     end
 # end
-
-
+end # module
