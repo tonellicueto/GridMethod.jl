@@ -1,6 +1,7 @@
 module GridModule
 using Parameters
 using ..Polynomial
+using ..ConditionNumbers
 import Base: ==
 
 export GridNode
@@ -64,7 +65,9 @@ Base.getindex(G::Grid, i::Int) = getindex(gridnodes(G), i)
 
 # Base function to put a node in and a node out
 Base.push!(G::Grid, g::GridNode) = Base.push!(gridnodes(G), g) #Add node g to grid G
+Base.pushfirst!(G::Grid, g::GridNode) = Base.pushfirst!(gridnodes(G), g) #Add node g to grid G
 Base.pop!(G::Grid) = Base.pop!(gridnodes(G)) #Picks a node g from G and removes it
+Base.popfirst!(G::Grid, g::GridNode) = Base.popfirst!(gridnodes(G)) #Add node g to grid G
 
 # Iterate over a grid
 Base.eltype(G::Grid) = Base.eltype(gridnodes(G))
@@ -116,12 +119,13 @@ function GridNodeEvaluate(
     grid::Grid{T, dim},
     node::GridNode{T, dim}
 ) where {T, dim}
+    nodeJacobian = polysys(grid).jacobian(coordinates(node))
     GridNode{T, dim}(
         depth(node),
         coordinates(node),
         image(node),
-        polysys(grid).jacobian(coordinates(node)),
-        nothing # TODO
+        nodeJacobian,
+        localC(polysys(grid), coordinates(node); jacobian=nodeJacobian)
     )
 end
 

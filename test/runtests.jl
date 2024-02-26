@@ -2,9 +2,11 @@ import HomotopyContinuation.ModelKit
 const HCMK = ModelKit
 
 using Test
+using LinearAlgebra
 using GridMethod.Polynomial
 using GridMethod.Norms
 using GridMethod.ConditionNumbers
+const CN = ConditionNumbers
 using GridMethod.GridModule
 
 
@@ -105,8 +107,18 @@ end
         @test node == grid[i]
     end
 
-    # TODO Test findmax for Grid
-    # @test condition(findmax(grid)[1]) == 12.5
+    # Test node evaluation
+    for _ in 1:length(grid)
+        node = pop!(grid)
+        newNode = GridNodeEvaluate(grid, node)
+        pushfirst!(grid, newNode)
+    end
+
+    for node in grid
+        @test node.image == polysys(grid)(coordinates(node))
+        @test node.jacobian == polysys(grid).jacobian(coordinates(node))
+        @test node.condition == localC(polysys(grid), coordinates(node))
+    end
 end
 
 @testset "Norm Tests" failfast=true begin
@@ -137,13 +149,13 @@ end
 end
 
 @testset "Condition Number Tests" failfast=true begin
-    @test ConditionNumbers._vector_power(2.0, [0.0, -1.0, 1.5]) == [1.0, 0.5, 2*sqrt(2)]
+    @test CN._vector_power(2.0, [0.0, -1.0, 1.5]) == [1.0, 0.5, 2*sqrt(2)]
 
     # Set up polynomial system for condition number testing
-    HCMK.@var x,y,z
+    HCMK.@var x1,x2,x3
     polysys_ = HCMK.System(
-        [x+y-z, x^2 -z^3];
-        variables=[x,y,z]
+        [x1+x2-x3, x1^2 -x3^3];
+        variables=[x1,x2,x3]
     )
     jacobian_ = v -> HCMK.jacobian(polysys_, v)
 
@@ -155,7 +167,31 @@ end
         HCMK.support_coefficients(polysys_)[2]
     )
 
-    _testVal = localC(polysystem, [1.0,1.0,1.0])
-    @info "$_testVal"
-    @test !isnothing(_testVal)
+    testVectors = [
+        [1.0,1.0,1.0],
+        [0.0,0.25,-0.5],
+        [0.375,-0.1,-0.8],
+        [0.0,0.0,0.0],
+    ]
+    for v in testVectors
+        # Work out condition number manually
+        d = polysystem.degrees
+        Δ = Diagonal(d)
+        vhinf = hinfNorm(v)
+
+        A1 = inv(Δ)*Diagonal(CN._vector_power(vhinf, -1.0*d))
+        scale1 = norm(A1*polysystem(v), Inf)
+
+        jacobianV = polysystem.jacobian(v)
+        A2 = (
+            pinv(jacobianV)
+            *Diagonal(CN._vector_power(vhinf, d-ones(Float64, size(d)[1])))
+            *Δ^2
+        )
+        scale2 = 1/matrixInfPNorm(A2)
+
+        condV = polyNorm1(polysystem)/maximum([scale1,scale2])
+
+        @test localC(polysystem, v) == condV
+    end
 end
