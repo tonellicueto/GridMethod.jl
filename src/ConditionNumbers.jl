@@ -117,7 +117,7 @@ function localC(
     )
 
     jacobian = isnothing(jacobian) ? f.jacobian(x) : jacobian
-    jacobian_pinv = isnothing(jacobian_pinv) ? pinv(jacobian) : jacobian_pinv
+    jacobian_pinv = isnothing(jacobian_pinv) ? pinv(jacobian) : deepcopy(jacobian_pinv)
     cols_pinv = eachcol(jacobian_pinv)
     broadcast!(
         (col, d) -> (xhinf^(d-1)*d^2)*col,
