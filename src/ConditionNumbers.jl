@@ -104,12 +104,13 @@ function _vector_power(x::T, v::Vector{T}) where T <: Number
     return map(y -> x^y, v)
 end
 
+#TODO eliminate xhinf
 function localC(
     f::PolynomialSystem{T},
     x::Vector{T};
     jacobian=nothing,
     jacobian_pinv=nothing
-) where T <: Number
+) where T
     xhinf = hinfNorm(x)
     scale1 = norm(
         map(((d,y),) -> y/(d*xhinf^d), zip(f.degrees, f(x))),
@@ -125,7 +126,7 @@ function localC(
         cols_pinv,
         f.degrees,
     )
-    scale2 = 1/matrixInfPNorm(jacobian_pinv; p=2)
+    scale2 = 1/opnorm(jacobian_pinv, Inf)
 
     return polyNorm1(f)/maximum((scale1, scale2))
 end

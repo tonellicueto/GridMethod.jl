@@ -1,7 +1,7 @@
 module Polynomial
 export PolynomialSystem
 
-struct PolynomialSystem{T}
+struct PolynomialSystem{T <: Number}
     evaluate::Function
     jacobian::Function
     degrees::Vector{Int}

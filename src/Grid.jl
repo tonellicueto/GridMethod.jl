@@ -18,7 +18,7 @@ export gridnodes
 export est_condition
 export dim
 
-struct GridNode{T, dim}
+struct GridNode{T <: Number, dim}
     depth::Int
     coordinates::Vector{T}
     image::Vector{T}
@@ -45,7 +45,10 @@ function ==(node1::GridNode{T, dim}, node2::GridNode{T, dim}) where {T, dim}
 end
 
 # Structure defining the grid
-mutable struct Grid{T, dim}
+# TODO Han and filter out grid nodes by exploiting lipschitz
+# on polynomial and multiplying condition by f(x)
+# If cond*f(x) >= 1 then filter out
+mutable struct Grid{T <: Number, dim}
     polysys::PolynomialSystem{T}
     gridnodes::Vector{GridNode{T, dim}}
     est_condition::Union{T, Nothing}

@@ -188,7 +188,7 @@ end
             *Diagonal(CN._vector_power(vhinf, d-ones(Float64, size(d)[1])))
             *Δ^2
         )
-        scale2 = 1/matrixInfPNorm(A2)
+        scale2 = 1/opnorm(A2, Inf)
 
         condV = polyNorm1(polysystem)/maximum([scale1,scale2])
 
