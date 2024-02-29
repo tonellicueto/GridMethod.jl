@@ -30,6 +30,9 @@ using .ConditionNumbers
 include("Grid.jl")
 using .GridModule
 
+include("GridBatch.jl")
+using .GridBatch
+
 #include("Han.jl")
 #
 #using Requires
