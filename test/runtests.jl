@@ -1,6 +1,7 @@
 import HomotopyContinuation.ModelKit
 const HCMK = ModelKit
 
+using .Iterators
 using Test
 using LinearAlgebra
 using GridMethod.Polynomial
@@ -8,6 +9,7 @@ using GridMethod.Norms
 using GridMethod.ConditionNumbers
 const CN = ConditionNumbers
 using GridMethod.GridModule
+using GridMethod.GridBatch
 
 
 # Test suite for GridNode
@@ -194,4 +196,19 @@ end
 
         @test localC(polysystem, v) == condV
     end
+end
+
+# Test coordinate batching
+@testset "GridBatch " failfast=true begin
+    testBatches = sort(collect(flatten(
+        GridBatch.batchGrid(Float64,3,2,4,-1.0,1.0)
+    )))
+
+    expectedBatches = sort([
+        [l,r]
+        for l in range(-0.75,0.75,step=0.5)
+        for r in range(-0.75,0.75,step=0.5)
+    ])
+
+    @test testBatches == expectedBatches
 end
