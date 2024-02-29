@@ -109,12 +109,13 @@ function GridNode(
     depth::Int,
     coordinates::Vector{T}
 ) where {T, dim}
+    nodeJacobian = polysys(grid).jacobian(coordinates)
     GridNode{T, dim}(
         depth,
         coordinates,
         polysys(grid)(coordinates),
-        nothing,
-        nothing
+        nodeJacobian,
+        localC(polysys(grid), coordinates; jacobian=nodeJacobian)
     )
 end
 

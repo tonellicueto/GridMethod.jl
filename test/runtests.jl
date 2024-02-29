@@ -10,6 +10,7 @@ using GridMethod.ConditionNumbers
 const CN = ConditionNumbers
 using GridMethod.GridModule
 using GridMethod.GridBatch
+using GridMethod.Han
 
 
 # Test suite for GridNode
@@ -211,4 +212,29 @@ end
     ])
 
     @test testBatches == expectedBatches
+end
+
+# Test coordinate batching
+@testset "Han test" failfast=true begin
+    # Create a Grid instance
+    HCMK.@var x,y,z
+    polysys_ = HCMK.System(
+        [x-y, y-z, x^2 -z^3];
+        variables=[x,y,z]
+    )
+    jacobian_ = v -> HCMK.jacobian(polysys_, v)
+
+    gridPolySys::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys_(v),
+        jacobian_,
+        HCMK.degrees(polysys_),
+        HCMK.support_coefficients(polysys_)[2]
+    )
+    # Make a Grid for testing
+    grid = Grid{Float64, 3}(gridPolySys, [], nothing)
+
+    @test length(grid) == 0
+    gridHan!(grid,5)
+    @test length(grid) > 0
 end

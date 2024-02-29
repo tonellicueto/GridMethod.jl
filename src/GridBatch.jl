@@ -19,10 +19,10 @@ function batchGrid(
         push!(batches,(numBatches+1,(2^(depth-1))%numBatches))
     end
 
-    return (
+    return [
         _makeBatch(T, b...,offset,dim,depth,scale)
         for b in batches
-    )
+    ]
 end
 
 function _makeBatch(

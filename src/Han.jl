@@ -1,66 +1,81 @@
+module Han
+using LinearAlgebra
+using ..GridModule
+using ..GridBatch
+using ..ConditionNumbers
+using ..Norms
+using .Iterators
 
-"""
-    grid_Han(T=Float64, fun, C, m, dim;
-                depth₀ = Int(ceil(log2(C))))
-
-Returns a grid satisfying the Han condition.
-
-# Arguments:
- - `T`: eltype of grid nodes
- - `fun`: The function to be evaluated at each point in the grid.
- - `C`: A parameter used in the Han condition.
- - `m`: Lower bound of the image.
- - `dim`: The dimension of the grid.
-
-# Keyword arguments:
- - `depth₀`: Depth of the initial grid.
- - `G₀`: Initial grid, default is grid of depth `depth₀`.
-"""
-
+export gridHan!
 ##TODO: Rewrite Han to directly compute the grid.
-## It should initiate computing the degree matrix, the norm of each polynomial in the system and normalize each polynomial in the system by its norm.
-## It should start subdividing storing the value, jacobian, and condition at each point of the grid.
+## It should initiate computing the degree matrix, the norm of each polynomial in the system and
+## normalize each polynomial in the system by its norm.
+## It should start subdividing storing the value, jacobian, and condition at
+## each point of the grid.
 ## It should output the final grid, together with the upper estimate of the condition number and the normalized system.
 ## One can write a subprogram to normalize the system, i.e., divide each polynomial by its norm.
-
-function grid_Han(::Type{T}, objective_to_minimize, C, m, dim;
-                     depth₀ = Int(ceil(log2(C)))) where T
-    H = Grid(T, dim, objective_to_minimize) ## Empty grid
-    G = Grid(T, dim, objective_to_minimize, max(0, depth₀)) ## Grid of min depth.
-    while !(isempty(G))
-        g = pop!(G) # Removes an element of G and stores it at g.
-        @unpack odds, depth, image = g
-        if image < m
-            @warn "Small norm" image, m
-            return H # WARN Function returning two different types
-        end
-        if C/exp2(depth) < image
-            # println("Step:", depth, " C:", C, "--", isHan(image, depth, C), image)
-            push!(H, g)
-        else
-            append_nextleaves!(G, g)
-        end
+function gridHan!(
+    G::Grid{T, dim},
+    depth::Int;
+    tasks=1,
+    lower::T=-1*one(T),
+    upper::T=one(T)
+) where {T, dim}
+    batches = batchGrid(T,depth,dim,tasks,lower,upper)
+    nodeCollection = [repeated([],length(batches))...]
+    Threads.@threads :static for i in range(1,length(batches))
+        batch = batches[i]
+        nodes = map(x -> GridNode(G,depth,x), batch)
+        append!(
+            nodeCollection[i],
+            collect(filter(
+                n -> norm(image(n), Inf)*condition(n) >= 1,
+                nodes
+        )))
     end
-    return H
+    for nodeBatch in nodeCollection
+        append!(gridnodes(G),nodeBatch)
+    end
 end
 
-grid_Han(objective_to_minimize, C, m, dim;
-         depth₀ = Int(ceil(log2(C)))) = grid_Han(Float64, objective_to_minimize, C, m, dim;
-                                                 depth₀ = depth₀)
-
-Han_factor(C, L) = 1 - L/C
-
+#function grid_Han(::Type{T}, objective_to_minimize, C, m, dim;
+#                     depth₀ = Int(ceil(log2(C)))) where T
+#    H = Grid(T, dim, objective_to_minimize) ## Empty grid
+#    G = Grid(T, dim, objective_to_minimize, max(0, depth₀)) ## Grid of min depth.
+#    while !(isempty(G))
+#        g = pop!(G) # Removes an element of G and stores it at g.
+#        @unpack odds, depth, image = g
+#        if image < m
+#            @warn "Small norm" image, m
+#            return H # WARN Function returning two different types
+#        end
+#        if C/exp2(depth) < image
+#            # println("Step:", depth, " C:", C, "--", isHan(image, depth, C), image)
+#            push!(H, g)
+#        else
+#            append_nextleaves!(G, g)
+#        end
+#    end
+#    return H
+#end
+#
+#grid_Han(objective_to_minimize, C, m, dim;
+#         depth₀ = Int(ceil(log2(C)))) = grid_Han(Float64, objective_to_minimize, C, m, dim;
+#                                                 depth₀ = depth₀)
+#
+#Han_factor(C, L) = 1 - L/C
+#
 """
     Han_min(G, L, C)
 
 Returns the minimum function value in grid `G` scaled by the factor `γ = 1 - L/C`.
 """
-function Han_findmin(G, L, C)
-    L < C || @warn "Required condition 0<1-L/C not satisfied." L, C, L/C
-    minfx, n = findmin(G)
-    print("γ = $(Han_factor(C, L))\nimage = $(image(minfx))\n")
-    return Han_factor(C, L)*image(minfx), n
-end
+#function Han_findmin(G, L, C)
+#    L < C || @warn "Required condition 0<1-L/C not satisfied." L, C, L/C
+#    minfx, n = findmin(G)
+#    print("γ = $(Han_factor(C, L))\nimage = $(image(minfx))\n")
+#    return Han_factor(C, L)*image(minfx), n
+#end
 
 # function refine_grid!(G, fun, C, m, dim; isfine = _isHan,
 #                       pushsubdivide! = cube_pushsubdivided!)
@@ -98,3 +113,4 @@ end
 
 # eachstep(H) = unique(map(h -> h.step, H))
 # branches(G, H) = Dict([(i, branches(G,i)) for i in eachstep(H)])
+end #module

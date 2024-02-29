@@ -33,8 +33,9 @@ using .GridModule
 include("GridBatch.jl")
 using .GridBatch
 
-#include("Han.jl")
-#
+include("Han.jl")
+using .Han
+
 #using Requires
 #
 #include("ModelKitDocs.jl")
