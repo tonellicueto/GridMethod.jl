@@ -16,25 +16,27 @@ export gridHan!
 ## One can write a subprogram to normalize the system, i.e., divide each polynomial by its norm.
 function gridHan!(
     G::Grid{T, dim},
-    depth::Int;
-    tasks=1,
+    depth::UInt;
+    tasks=UInt(1),
     lower::T=-1*one(T),
     upper::T=one(T)
 ) where {T, dim}
-    batches = batchGrid(T,depth,dim,tasks,lower,upper)
-    nodeCollection = [repeated([],length(batches))...]
-    Threads.@threads :static for i in range(1,length(batches))
-        batch = batches[i]
-        nodes = map(x -> GridNode(G,depth,x), batch)
-        append!(
-            nodeCollection[i],
-            collect(filter(
-                n -> norm(image(n), Inf)*condition(n) >= 1,
-                nodes
-        )))
-    end
-    for nodeBatch in nodeCollection
-        append!(gridnodes(G),nodeBatch)
+    coordinates = generateCoordinates(
+        T,
+        dim,
+        depth,
+        lower,
+        upper
+    )
+    gridPushLock = ReentrantLock()
+    Threads.@threads :static for coord in coordinates 
+        node = GridNode(G,depth,coord)
+        lock(gridPushLock)
+        try
+            push!(G,node)
+        finally
+            unlock(gridPushLock)
+        end
     end
 end
 

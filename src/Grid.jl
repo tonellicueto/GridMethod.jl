@@ -19,7 +19,7 @@ export est_condition
 export dim
 
 struct GridNode{T <: Number, dim}
-    depth::Int
+    depth::UInt
     coordinates::Vector{T}
     image::Vector{T}
     jacobian::Union{Matrix{T}, Nothing}
@@ -106,7 +106,7 @@ Base.values(G::Grid) = Base.values(gridnodes(G))
 #
 function GridNode(
     grid::Grid{T, dim},
-    depth::Int,
+    depth::UInt,
     coordinates::Vector{T}
 ) where {T, dim}
     nodeJacobian = polysys(grid).jacobian(coordinates)
@@ -130,14 +130,6 @@ function GridNodeEvaluate(
         image(node),
         nodeJacobian,
         localC(polysys(grid), coordinates(node); jacobian=nodeJacobian)
-    )
-end
-
-function GridNode(grid::Grid{T, dim}, depth, oddCoordinates) where {T, dim}
-    GridNode(
-        grid,
-        depth,
-        oddCoordinates/(2.0^(depth))
     )
 end
 

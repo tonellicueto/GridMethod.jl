@@ -20,7 +20,7 @@ using GridMethod.Han
     image_ = [4.0, 5.0, 6.0]
     jacobian_ = [1.0 0.0; 0.0 1.0; 0.0 0.0]
     condition_ = 10.0
-    node = GridNode{Float64, 3}(2, coordinates_, image_, jacobian_, condition_)
+    node = GridNode{Float64, 3}(UInt(2), coordinates_, image_, jacobian_, condition_)
 
     # Test the depth function
     @test depth(node) == 2
@@ -44,7 +44,7 @@ using GridMethod.Han
     image2 = [5.0, 6.0, 7.0]
     jacobian2 = [2.0 -10.0; 5.0 2.0; 1.0 0.0]
     condition2 = 1000.0
-    node2 = GridNode{Float64, 3}(2, coordinates2, image2, jacobian2, condition2)
+    node2 = GridNode{Float64, 3}(UInt(2), coordinates2, image2, jacobian2, condition2)
 
     @test node < node2
     @test node == node
@@ -84,13 +84,13 @@ end
     coordinate1 = [1.0, 2.0, 3.0]
     node1 = GridNode(
         grid,
-        2,
+        UInt(2),
         coordinate1
     )
     coordinate2 = [1.5, 2.5, 3.5]
     node2 = GridNode(
         grid,
-        3,
+        UInt(3),
         coordinate2,
     )
 
@@ -202,7 +202,7 @@ end
 # Test coordinate batching
 @testset "GridBatch " failfast=true begin
     testBatches = sort(collect(flatten(
-        GridBatch.batchGrid(Float64,3,2,4,-1.0,1.0)
+        GridBatch.batchGrid(Float64,UInt(3),UInt(2),UInt(4),-1.0,1.0)
     )))
 
     expectedBatches = sort([
@@ -235,6 +235,6 @@ end
     grid = Grid{Float64, 3}(gridPolySys, [], nothing)
 
     @test length(grid) == 0
-    gridHan!(grid,5)
+    gridHan!(grid,UInt(5))
     @test length(grid) > 0
 end
