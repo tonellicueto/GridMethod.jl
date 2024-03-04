@@ -17,27 +17,54 @@ export gridHan!
 function gridHan!(
     G::Grid{T, dim},
     depth::UInt;
-    tasks=UInt(1),
     lower::T=-1*one(T),
-    upper::T=one(T)
+    upper::T=one(T),
+    maxDepth::Union{UInt,Nothing}=nothing
 ) where {T, dim}
-    coordinates = generateCoordinates(
+    coordinates = collect(generateCoordinates(
         T,
         dim,
         depth,
         lower,
         upper
-    )
-    gridPushLock = ReentrantLock()
-    Threads.@threads :static for coord in coordinates 
-        node = GridNode(G,depth,coord)
-        lock(gridPushLock)
-        try
-            push!(G,node)
-        finally
-            unlock(gridPushLock)
+    ))
+    reprocess::Vector{Vector{T}} = []
+    reprocessLock = ReentrantLock()
+    gridLock = ReentrantLock()
+    while length(coordinates) > 0 && (isnothing(maxDepth) || depth <= maxDepth)
+        Threads.@threads for coord in coordinates 
+            node = GridNode(G,depth,coord)
+            if norm(image(node),Inf)*condition(node)≥1
+                lock(gridLock)
+                try
+                    push!(G,node)
+                finally
+                    unlock(gridLock)
+                end
+            else
+                newCoordinates = _splitNode(node)
+                lock(reprocessLock)
+                try
+                    append!(reprocess, newCoordinates)
+                finally
+                    unlock(reprocessLock)
+                end
+            end
         end
+
+        coordinates = reprocess
+        reprocess = []
+        depth = depth + 1
     end
+end
+
+function _splitNode(node::GridNode{T, dim}) where {T, dim}
+    depth = node.depth + 1
+    center = coordinates(node)
+    return map(
+        t -> [n/2^depth for n in t] + center,
+        product(repeated([-one(T),one(T)],dim)...)
+    )
 end
 
 #function grid_Han(::Type{T}, objective_to_minimize, C, m, dim;

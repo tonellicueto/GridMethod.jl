@@ -219,7 +219,11 @@ end
     # Create a Grid instance
     HCMK.@var x,y,z
     polysys_ = HCMK.System(
-        [x-y, y-z, x^2 -z^3];
+        [
+        (x-0.02)*(x+0.001) + (y-0.003)^3 + (z-0.5)*(z^2+1),
+        (x-0.02)*(x-0.001)^5 + (y-0.003)*(y-0.1)^2 + (z-0.5),
+        (x-0.02) + (y-0.003)^7*y^2 + z*(z-0.5)
+        ];
         variables=[x,y,z]
     )
     jacobian_ = v -> HCMK.jacobian(polysys_, v)
@@ -235,6 +239,7 @@ end
     grid = Grid{Float64, 3}(gridPolySys, [], nothing)
 
     @test length(grid) == 0
-    gridHan!(grid,UInt(5))
+    gridHan!(grid,UInt(3);maxDepth=UInt(7))
     @test length(grid) > 0
+    @info "$(length(grid))"
 end
