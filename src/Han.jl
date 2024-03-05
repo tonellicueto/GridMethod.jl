@@ -34,7 +34,7 @@ function gridHan!(
     while length(coordinates) > 0 && (isnothing(maxDepth) || depth <= maxDepth)
         Threads.@threads for coord in coordinates 
             node = GridNode(G,depth,coord)
-            if norm(image(node),Inf)*condition(node)≥1
+            if _HanCondition(node)
                 lock(gridLock)
                 try
                     push!(G,node)
@@ -56,6 +56,10 @@ function gridHan!(
         reprocess = []
         depth = depth + 1
     end
+end
+
+function _HanCondition(node::GridNode{T, dim}) where {T, dim}
+    return norm(image(node),Inf)≥condition(node)*2^(-1*node.depth)
 end
 
 function _splitNode(node::GridNode{T, dim}) where {T, dim}
