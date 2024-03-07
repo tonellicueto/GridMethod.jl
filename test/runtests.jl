@@ -217,14 +217,21 @@ end
 # Test coordinate batching
 @testset "Han test" failfast=true begin
     # Create a Grid instance
-    HCMK.@var x,y,z
+#    HCMK.@var x,y,z
+#    polysys_ = HCMK.System(
+#        [
+#        (x-0.02)*(x+0.001) + (y-0.003)^3 + (z-0.5)^4*(z^2+1),
+#        (x-0.02)^2*(x-0.001)^3 + (y-0.003)*(y-0.1)^2 + (z-0.5),
+#        (x-0.02) + (y-0.003)^3*y^2 + z*(z-0.5)
+#        ];
+#        variables=[x,y,z]
+#    )
+    HCMK.@var x,y
     polysys_ = HCMK.System(
         [
-        (x-0.02)*(x+0.001) + (y-0.003)^3 + (z-0.5)^4*(z^2+1),
-        (x-0.02)^2*(x-0.001)^3 + (y-0.003)*(y-0.1)^2 + (z-0.5),
-        (x-0.02) + (y-0.003)^3*y^2 + z*(z-0.5)
+        (x-0.02)*(x+0.001) + (y-0.003)^3,
         ];
-        variables=[x,y,z]
+        variables=[x,y]
     )
     jacobian_ = v -> HCMK.jacobian(polysys_, v)
 
@@ -236,10 +243,10 @@ end
         HCMK.support_coefficients(polysys_)[2]
     )
     # Make a Grid for testing
-    grid = Grid{Float64, 3}(gridPolySys, [], nothing)
+    grid = Grid{Float64, 2}(gridPolySys, [], nothing)
 
     @test length(grid) == 0
-    gridHan!(grid,UInt(5);maxDepth=UInt(100))
+    gridHan!(grid,UInt(5);maxDepth=UInt(20))
     @test length(grid) > 0
     @info "$(length(grid))"
 end

@@ -32,6 +32,7 @@ function gridHan!(
     reprocessLock = ReentrantLock()
     gridLock = ReentrantLock()
     while length(coordinates) > 0 && (isnothing(maxDepth) || depth <= maxDepth)
+        @info "depth is $depth"
         Threads.@threads for coord in coordinates 
             node = GridNode(G,depth,coord)
             if _HanCondition(node)
@@ -59,7 +60,7 @@ function gridHan!(
 end
 
 function _HanCondition(node::GridNode{T, dim}) where {T, dim}
-    return norm(image(node),Inf)≥condition(node)*2^(-1*node.depth)
+    return norm(image(node),Inf)*condition(node)<1
 end
 
 function _splitNode(node::GridNode{T, dim}) where {T, dim}
