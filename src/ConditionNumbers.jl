@@ -104,16 +104,14 @@ function _vector_power(x::T, v::Vector{T}) where T <: Number
     return map(y -> x^y, v)
 end
 
-#TODO eliminate xhinf
 function localC(
     f::PolynomialSystem{T},
     x::Vector{T};
     jacobian=nothing,
     jacobian_pinv=nothing
 ) where T
-    xhinf = hinfNorm(x)
     scale1 = norm(
-        map(((d,y),) -> y/(d*xhinf^d), zip(f.degrees, f(x))),
+        map(((d,y),) -> y/d, zip(f.degrees, f(x))),
         Inf
     )
 
@@ -121,7 +119,7 @@ function localC(
     jacobian_pinv = isnothing(jacobian_pinv) ? pinv(jacobian) : deepcopy(jacobian_pinv)
     cols_pinv = eachcol(jacobian_pinv)
     broadcast!(
-        (col, d) -> (xhinf^(d-1)*d^2)*col,
+        (col, d) -> (d^2)*col,
         cols_pinv,
         cols_pinv,
         f.degrees,

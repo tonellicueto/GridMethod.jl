@@ -155,10 +155,10 @@ end
     @test CN._vector_power(2.0, [0.0, -1.0, 1.5]) == [1.0, 0.5, 2*sqrt(2)]
 
     # Set up polynomial system for condition number testing
-    HCMK.@var x1,x2,x3
+    HCMK.@var x1,x2
     polysys_ = HCMK.System(
-        [x1+x2-x3, x1^2 -x3^3];
-        variables=[x1,x2,x3]
+        [1000*x1-x2,x2];
+        variables=[x1,x2]
     )
     jacobian_ = v -> HCMK.jacobian(polysys_, v)
 
@@ -171,10 +171,10 @@ end
     )
 
     testVectors = [
-        [1.0,1.0,1.0],
-        [0.0,0.25,-0.5],
-        [0.375,-0.1,-0.8],
-        [0.0,0.0,0.0],
+        [1.0,1.0],
+        [0.0,0.25],
+        [0.375,-0.1],
+        [0.0,0.0],
     ]
     for v in testVectors
         # Work out condition number manually
@@ -216,37 +216,148 @@ end
 
 # Test coordinate batching
 @testset "Han test" failfast=true begin
-    # Create a Grid instance
-#    HCMK.@var x,y,z
-#    polysys_ = HCMK.System(
-#        [
-#        (x-0.02)*(x+0.001) + (y-0.003)^3 + (z-0.5)^4*(z^2+1),
-#        (x-0.02)^2*(x-0.001)^3 + (y-0.003)*(y-0.1)^2 + (z-0.5),
-#        (x-0.02) + (y-0.003)^3*y^2 + z*(z-0.5)
-#        ];
-#        variables=[x,y,z]
-#    )
     HCMK.@var x,y
-    polysys_ = HCMK.System(
+    polysys1 = HCMK.System(
         [
-        (x-0.02)*(x+0.001) + (y-0.003)^3,
+        x,
+        y,
         ];
         variables=[x,y]
     )
-    jacobian_ = v -> HCMK.jacobian(polysys_, v)
+    jacobian1 = v -> HCMK.jacobian(polysys1, v)
 
-    gridPolySys::PolynomialSystem{Float64} =
+    gridPolySys1::PolynomialSystem{Float64} =
     PolynomialSystem{Float64}(
-        v -> polysys_(v),
-        jacobian_,
-        HCMK.degrees(polysys_),
-        HCMK.support_coefficients(polysys_)[2]
+        v -> polysys1(v),
+        jacobian1,
+        HCMK.degrees(polysys1),
+        HCMK.support_coefficients(polysys1)[2]
     )
     # Make a Grid for testing
-    grid = Grid{Float64, 2}(gridPolySys, [], nothing)
+    grid1 = Grid{Float64, 2}(gridPolySys1, [], nothing)
 
-    @test length(grid) == 0
-    gridHan!(grid,UInt(5);maxDepth=UInt(20))
-    @test length(grid) > 0
-    @info "$(length(grid))"
+    @test length(grid1) == 0
+    gridHan!(grid1,UInt(1);maxDepth=UInt(15))
+    @test length(grid1) > 0
+    @info "grid1: $(length(grid1))"
+
+    polysys2 = HCMK.System(
+        [
+        x - y,
+        y,
+        ];
+        variables=[x,y]
+    )
+    jacobian2 = v -> HCMK.jacobian(polysys2, v)
+
+    gridPolySys2::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys2(v),
+        jacobian2,
+        HCMK.degrees(polysys2),
+        HCMK.support_coefficients(polysys2)[2]
+    )
+    # Make a Grid for testing
+    grid2 = Grid{Float64, 2}(gridPolySys2, [], nothing)
+
+    @test length(grid2) == 0
+    gridHan!(grid2,UInt(1);maxDepth=UInt(15))
+    @test length(grid2) > 0
+    @info "grid2: $(length(grid2))"
+
+    polysys3 = HCMK.System(
+        [
+        1000*x - y,
+        y,
+        ];
+        variables=[x,y]
+    )
+    jacobian3 = v -> HCMK.jacobian(polysys3, v)
+
+    gridPolySys3::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys3(v),
+        jacobian3,
+        HCMK.degrees(polysys3),
+        HCMK.support_coefficients(polysys3)[2]
+    )
+    # Make a Grid for testing
+    grid3 = Grid{Float64, 2}(gridPolySys3, [], nothing)
+
+    @test length(grid3) == 0
+    gridHan!(grid3,UInt(1);maxDepth=UInt(10))
+    @test length(grid3) > 0
+    @info "grid3: $(length(grid3))"
+
+    polysys4 = HCMK.System(
+        [
+        x^2 + y^2 - 0.5,
+        x,
+        ];
+        variables=[x,y]
+    )
+    jacobian4 = v -> HCMK.jacobian(polysys4, v)
+
+    gridPolySys4::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys4(v),
+        jacobian4,
+        HCMK.degrees(polysys4),
+        HCMK.support_coefficients(polysys4)[2]
+    )
+    # Make a Grid for testing
+    grid4 = Grid{Float64, 2}(gridPolySys4, [], nothing)
+
+    @test length(grid4) == 0
+    gridHan!(grid4,UInt(1);maxDepth=UInt(10))
+    @test length(grid4) > 0
+    @info "grid4: $(length(grid4))"
+
+    polysys5 = HCMK.System(
+        [
+        x^2 + y^2 - 0.5,
+        x-0.25,
+        ];
+        variables=[x,y]
+    )
+    jacobian5 = v -> HCMK.jacobian(polysys5, v)
+
+    gridPolySys5::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys5(v),
+        jacobian5,
+        HCMK.degrees(polysys5),
+        HCMK.support_coefficients(polysys5)[2]
+    )
+    # Make a Grid for testing
+    grid5 = Grid{Float64, 2}(gridPolySys5, [], nothing)
+
+    @test length(grid5) == 0
+    gridHan!(grid5,UInt(1);maxDepth=UInt(10))
+    @test length(grid5) > 0
+    @info "grid5: $(length(grid5))"
+
+    polysys6 = HCMK.System(
+        [
+        x^2 + y^2 - 0.5,
+        x-(1/sqrt(2.0)),
+        ];
+        variables=[x,y]
+    )
+    jacobian6 = v -> HCMK.jacobian(polysys6, v)
+
+    gridPolySys6::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys6(v),
+        jacobian6,
+        HCMK.degrees(polysys6),
+        HCMK.support_coefficients(polysys6)[2]
+    )
+    # Make a Grid for testing
+    grid6 = Grid{Float64, 2}(gridPolySys6, [], nothing)
+
+    @test length(grid6) == 0
+    gridHan!(grid6,UInt(1);maxDepth=UInt(10))
+    @test length(grid6) > 0
+    @info "grid6: $(length(grid6))"
 end
