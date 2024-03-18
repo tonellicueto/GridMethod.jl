@@ -86,36 +86,24 @@ Base.isless(g::GridNode, h::GridNode) = Base.isless(condition(g), condition(h))
 Base.keys(G::Grid) = Base.keys(gridnodes(G))
 Base.values(G::Grid) = Base.values(gridnodes(G))
 
-##TODO: Adapt this to the new format of Grid Node. Print depth and coordinates.  
-##function Base.print(io::IO, g::GridNode, kwargs...)
-##    @unpack depth, odds, image = g
-##    # print(io, "GridNode: \n")
-##    print(io, "┌Node: ", odds, " ", node(g), "\n")
-##    print(io, "└Depth: ", depth, " Image: ", image)
-##    print(io, kwargs...)
-##end
-#
-#Base.show(io::IO, ::MIME"text/plain", g::GridNode) = Base.print(io, g)
-#
-#function Base.show(io::IO, ::MIME"text/plain", G::Grid)
-#    for g in G
-#        print(io, g, "\n")
-#    end
-#end
-#
-#
 function GridNode(
     grid::Grid{T, dim},
     depth::UInt,
     coordinates::Vector{T}
 ) where {T, dim}
+    nodeImage = polysys(grid)(coordinates)
     nodeJacobian = polysys(grid).jacobian(coordinates)
     GridNode{T, dim}(
         depth,
         coordinates,
-        polysys(grid)(coordinates),
+        nodeImage,
         nodeJacobian,
-        localC(polysys(grid), coordinates; jacobian=nodeJacobian)
+        localC(
+            polysys(grid),
+            coordinates;
+            image=nodeImage,
+            jacobian=nodeJacobian
+        )
     )
 end
 

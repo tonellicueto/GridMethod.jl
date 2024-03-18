@@ -59,8 +59,7 @@ function gridHan!(
 end
 
 function _HanCondition(node::GridNode{T, dim}) where {T, dim}
-    _cond = condition(node)
-    return _cond/2^depth(node)≤0.5
+    return condition(node)/2^depth(node)≤0.5
 end
 
 function _splitNode(node::GridNode{T, dim}) where {T, dim}

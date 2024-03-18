@@ -107,11 +107,13 @@ end
 function localC(
     f::PolynomialSystem{T},
     x::Vector{T};
+    image=nothing,
     jacobian=nothing,
     jacobian_pinv=nothing
 ) where T
+    image = isnothing(image) ? f(x) : image
     scale1 = norm(
-        map(((d,y),) -> y/d, zip(f.degrees, f(x))),
+        map(((d,y),) -> y/d, zip(f.degrees, image)),
         Inf
     )
 
