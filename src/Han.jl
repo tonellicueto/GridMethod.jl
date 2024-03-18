@@ -7,13 +7,6 @@ using ..Norms
 using .Iterators
 
 export gridHan!
-##TODO: Rewrite Han to directly compute the grid.
-## It should initiate computing the degree matrix, the norm of each polynomial in the system and
-## normalize each polynomial in the system by its norm.
-## It should start subdividing storing the value, jacobian, and condition at
-## each point of the grid.
-## It should output the final grid, together with the upper estimate of the condition number and the normalized system.
-## One can write a subprogram to normalize the system, i.e., divide each polynomial by its norm.
 function gridHan!(
     G::Grid{T, dim},
     depth::UInt;
