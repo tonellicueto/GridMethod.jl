@@ -24,10 +24,10 @@ function gridHan!(
     reprocess::Vector{Vector{T}} = []
     reprocessLock = ReentrantLock()
     gridLock = ReentrantLock()
-    while length(coordinates) > 0 && (isnothing(maxDepth) || depth <= maxDepth)
+    while length(coordinates) > 0
         Threads.@threads for coord in coordinates 
             node = GridNode(G,depth,coord)
-            if _HanCondition(node)
+            if _HanCondition(node) || (!isnothing(maxDepth) && depth == maxDepth)
                 lock(gridLock)
                 try
                     push!(G,node)
