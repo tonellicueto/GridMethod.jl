@@ -240,7 +240,6 @@ end
     @test length(grid1) == 0
     gridHan!(grid1,UInt(1);maxDepth=UInt(15))
     @test length(grid1) > 0
-    @info "grid1: $(length(grid1))"
 
     polysys2 = HCMK.System(
         [
@@ -264,7 +263,6 @@ end
     @test length(grid2) == 0
     gridHan!(grid2,UInt(1);maxDepth=UInt(15))
     @test length(grid2) > 0
-    @info "grid2: $(length(grid2))"
 
     polysys3 = HCMK.System(
         [
@@ -288,7 +286,6 @@ end
     @test length(grid3) == 0
     gridHan!(grid3,UInt(1);maxDepth=UInt(10))
     @test length(grid3) > 0
-    @info "grid3: $(length(grid3))"
 
     polysys4 = HCMK.System(
         [
@@ -312,7 +309,6 @@ end
     @test length(grid4) == 0
     gridHan!(grid4,UInt(1);maxDepth=UInt(10))
     @test length(grid4) > 0
-    @info "grid4: $(length(grid4))"
 
     polysys5 = HCMK.System(
         [
@@ -336,7 +332,6 @@ end
     @test length(grid5) == 0
     gridHan!(grid5,UInt(1);maxDepth=UInt(10))
     @test length(grid5) > 0
-    @info "grid5: $(length(grid5))"
 
     polysys6 = HCMK.System(
         [
@@ -360,7 +355,6 @@ end
     @test length(grid6) == 0
     gridHan!(grid6,UInt(1);maxDepth=UInt(10))
     @test length(grid6) > 0
-    @info "grid6: $(length(grid6))"
 end
 
 @testset "Coordinates test" failfast=true begin

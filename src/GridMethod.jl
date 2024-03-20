@@ -35,6 +35,9 @@ using .GridBatch
 include("Han.jl")
 using .Han
 
+include("GridPlot.jl")
+using .GridPlot
+
 #using Requires
 #
 #include("ModelKitDocs.jl")
