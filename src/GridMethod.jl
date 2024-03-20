@@ -23,12 +23,11 @@ using .Norms
 include("ConditionNumbers.jl")
 using .ConditionNumbers
 
-#using RecipesBase # For Plots recipes
-#include("Plots.jl")
-
-# using StaticArrays # Maybe for GridNode
 include("Grid.jl")
 using .GridModule
+
+include("Coordinates.jl")
+using .Coordinates
 
 include("GridBatch.jl")
 using .GridBatch

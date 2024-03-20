@@ -11,6 +11,7 @@ const CN = ConditionNumbers
 using GridMethod.GridModule
 using GridMethod.GridBatch
 using GridMethod.Han
+using GridMethod.Coordinates
 
 
 # Test suite for GridNode
@@ -360,4 +361,42 @@ end
     gridHan!(grid6,UInt(1);maxDepth=UInt(10))
     @test length(grid6) > 0
     @info "grid6: $(length(grid6))"
+end
+
+@testset "Coordinates test" failfast=true begin
+    x = [0.0,0.0,0.0]
+    splitx = splitCoordinate(x, UInt(1))
+    @test length(splitx) == 8
+    @test sort(splitx) == [
+        [-0.5,-0.5,-0.5],
+        [-0.5,-0.5,0.5],
+        [-0.5,0.5,-0.5],
+        [-0.5,0.5,0.5],
+        [0.5,-0.5,-0.5],
+        [0.5,-0.5,0.5],
+        [0.5,0.5,-0.5],
+        [0.5,0.5,0.5],
+    ]
+
+    y = [0.0,0.0]
+    splity = splitCoordinate(y, UInt(2);scale=0.5)
+    @test length(splity) == 16
+    @test sort(splity) == [
+        [-0.375,-0.375],
+        [-0.375,-0.125],
+        [-0.375,0.125],
+        [-0.375,0.375],
+        [-0.125,-0.375],
+        [-0.125,-0.125],
+        [-0.125,0.125],
+        [-0.125,0.375],
+        [0.125,-0.375],
+        [0.125,-0.125],
+        [0.125,0.125],
+        [0.125,0.375],
+        [0.375,-0.375],
+        [0.375,-0.125],
+        [0.375,0.125],
+        [0.375,0.375],
+    ]
 end
