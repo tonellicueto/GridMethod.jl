@@ -4,6 +4,7 @@ using ..GridModule
 using ..GridBatch
 using ..ConditionNumbers
 using ..Norms
+using ..Coordinates
 using .Iterators
 
 export gridHan!
@@ -14,10 +15,11 @@ function gridHan!(
     upper::T=one(T),
     maxDepth::Union{UInt,Nothing}=nothing
 ) where {T, dim}
+    local_depth = depth
     coordinates = collect(generateCoordinates(
         T,
         dim,
-        depth,
+        local_depth,
         lower,
         upper
     ))
@@ -26,8 +28,8 @@ function gridHan!(
     gridLock = ReentrantLock()
     while length(coordinates) > 0
         Threads.@threads for coord in coordinates 
-            node = GridNode(G,depth,coord)
-            if _HanCondition(node) || (!isnothing(maxDepth) && depth == maxDepth)
+            node = GridNode(G,local_depth,coord)
+            if _HanCondition(node) || (!isnothing(maxDepth) && local_depth == maxDepth)
                 lock(gridLock)
                 try
                     push!(G,node)
@@ -35,7 +37,12 @@ function gridHan!(
                     unlock(gridLock)
                 end
             else
-                newCoordinates = _splitNode(node)
+                newCoordinates = splitCoordinate(
+                    GridModule.coordinates(node),
+                    local_depth + 1;
+                    depth=local_depth,
+                    scale=upper-lower
+                )
                 lock(reprocessLock)
                 try
                     append!(reprocess, newCoordinates)
@@ -47,20 +54,11 @@ function gridHan!(
 
         coordinates = reprocess
         reprocess = []
-        depth = depth + 1
+        local_depth += 1
     end
 end
 
 function _HanCondition(node::GridNode{T, dim}) where {T, dim}
     return condition(node)/2^depth(node)≤0.5
-end
-
-function _splitNode(node::GridNode{T, dim}) where {T, dim}
-    depth = node.depth + 1
-    center = coordinates(node)
-    return map(
-        t -> [n/2^depth for n in t] + center,
-        product(repeated([-one(T),one(T)],dim)...)
-    )
 end
 end #module

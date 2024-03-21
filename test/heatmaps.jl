@@ -9,55 +9,55 @@ using GridMethod.Han
 
 function main()
     HCMK.@var x,y
-    polysys1 = HCMK.System(
-        [
-        x,
-        y,
-        ];
-        variables=[x,y]
-    )
-    jacobian1 = v -> HCMK.jacobian(polysys1, v)
-
-    gridPolySys1::PolynomialSystem{Float64} =
-    PolynomialSystem{Float64}(
-        v -> polysys1(v),
-        jacobian1,
-        HCMK.degrees(polysys1),
-        HCMK.support_coefficients(polysys1)[2]
-    )
-    # Make a Grid for testing
-    grid1 = Grid{Float64, 2}(gridPolySys1, [], nothing)
-    gridHan!(grid1,UInt(1);maxDepth=UInt(15))
-    gridHeatMap(grid1; condition_transform=log)
-    savefig("grid1.pdf")
-
-    polysys2 = HCMK.System(
-        [
-        x - y,
-        y,
-        ];
-        variables=[x,y]
-    )
-    jacobian2 = v -> HCMK.jacobian(polysys2, v)
-
-    gridPolySys2::PolynomialSystem{Float64} =
-    PolynomialSystem{Float64}(
-        v -> polysys2(v),
-        jacobian2,
-        HCMK.degrees(polysys2),
-        HCMK.support_coefficients(polysys2)[2]
-    )
-    # Make a Grid for testing
-    grid2 = Grid{Float64, 2}(gridPolySys2, [], nothing)
-
-    gridHan!(grid2,UInt(1);maxDepth=UInt(15))
-    gridHeatMap(grid2; condition_transform=log)
-    savefig("grid2.pdf")
+#    polysys1 = HCMK.System(
+#        [
+#        y,
+#        x
+#        ];
+#        variables=[x,y]
+#    )
+#    jacobian1 = v -> HCMK.jacobian(polysys1, v)
+#
+#    gridPolySys1::PolynomialSystem{Float64} =
+#    PolynomialSystem{Float64}(
+#        v -> polysys1(v),
+#        jacobian1,
+#        HCMK.degrees(polysys1),
+#        HCMK.support_coefficients(polysys1)[2]
+#    )
+#    # Make a Grid for testing
+#    grid1 = Grid{Float64, 2}(gridPolySys1, [], nothing)
+#    gridHan!(grid1,UInt(1);maxDepth=UInt(12))
+#    gridHeatMap(grid1; condition_transform=log)
+#    savefig("grid1.pdf")
+#
+#    polysys2 = HCMK.System(
+#        [
+#        y - x,
+#        x
+#        ];
+#        variables=[x,y]
+#    )
+#    jacobian2 = v -> HCMK.jacobian(polysys2, v)
+#
+#    gridPolySys2::PolynomialSystem{Float64} =
+#    PolynomialSystem{Float64}(
+#        v -> polysys2(v),
+#        jacobian2,
+#        HCMK.degrees(polysys2),
+#        HCMK.support_coefficients(polysys2)[2]
+#    )
+#    # Make a Grid for testing
+#    grid2 = Grid{Float64, 2}(gridPolySys2, [], nothing)
+#
+#    gridHan!(grid2,UInt(1);maxDepth=UInt(12))
+#    gridHeatMap(grid2; condition_transform=log)
+#    savefig("grid2.pdf")
 
     polysys3 = HCMK.System(
         [
-        1000*x - y,
-        y,
+        1000*y - x,
+        x
         ];
         variables=[x,y]
     )
@@ -73,7 +73,7 @@ function main()
     # Make a Grid for testing
     grid3 = Grid{Float64, 2}(gridPolySys3, [], nothing)
 
-    gridHan!(grid3,UInt(1);maxDepth=UInt(10))
+    gridHan!(grid3,UInt(1);maxDepth=UInt(12))
     gridHeatMap(grid3;condition_transform=log)
     savefig("grid3.pdf")
 
@@ -96,14 +96,14 @@ function main()
     # Make a Grid for testing
     grid4 = Grid{Float64, 2}(gridPolySys4, [], nothing)
 
-    gridHan!(grid4,UInt(1);maxDepth=UInt(10))
+    gridHan!(grid4,UInt(1);maxDepth=UInt(12))
     gridHeatMap(grid4;condition_transform=log)
     savefig("grid4.pdf")
 
     polysys5 = HCMK.System(
         [
         x^2 + y^2 - 0.5,
-        x-0.25,
+        sqrt(2.0)*x-1.0,
         ];
         variables=[x,y]
     )
@@ -119,14 +119,14 @@ function main()
     # Make a Grid for testing
     grid5 = Grid{Float64, 2}(gridPolySys5, [], nothing)
 
-    gridHan!(grid5,UInt(1);maxDepth=UInt(10))
+    gridHan!(grid5,UInt(1);maxDepth=UInt(12))
     gridHeatMap(grid5;condition_transform=log)
     savefig("grid5.pdf")
 
     polysys6 = HCMK.System(
         [
         x^2 + y^2 - 0.5,
-        x-(1/sqrt(2.0)),
+        sqrt(2.0)*x-1.0,
         ];
         variables=[x,y]
     )

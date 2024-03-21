@@ -11,6 +11,8 @@ function gridHeatMap(
     grid::Grid{Float64, 2};
     condition_transform=nothing
 )
+    @info "min y: $(minimum(n -> coordinates(n)[2], gridnodes(grid)))"
+    @info "max y $(maximum(n -> coordinates(n)[2], gridnodes(grid)))"
     max_depth = maximum(depth, gridnodes(grid))
     minNode = argmin(coordinates, gridnodes(grid))
     maxNode = argmax(coordinates, gridnodes(grid))
@@ -21,11 +23,13 @@ function gridHeatMap(
         max_depth;
         depth=depth(minNode)
     )))
+    @info "minCoord: $minCoord"
     maxCoord = last(sort(splitCoordinate(
         coordinates(maxNode),
         max_depth;
         depth=depth(maxNode)
     )))
+    @info "maxCoord: $maxCoord"
 
     # Build the x and y ranges for the heatmap
     stepSize = 1/(2^(max_depth-1))
