@@ -56,6 +56,9 @@ function gridHan!(
         reprocess = []
         local_depth += 1
     end
+
+    # fill out estimated condition number
+    G.est_condition = maximum(condition, G)
 end
 
 function _HanCondition(node::GridNode{T, dim}) where {T, dim}

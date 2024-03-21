@@ -83,6 +83,10 @@ Base.isless(g::GridNode, h::GridNode) = Base.isless(condition(g), condition(h))
 Base.keys(G::Grid) = Base.keys(gridnodes(G))
 Base.values(G::Grid) = Base.values(gridnodes(G))
 
+function Base.empty(G::Grid{T, dim}) where {T, dim}
+    return Grid{T, dim}(polysys(G), [], est_condition(G))
+end
+
 function GridNode(
     grid::Grid{T, dim},
     depth::UInt,
