@@ -7,7 +7,7 @@ using GridMethod.GridPlot
 using GridMethod.Polynomial
 using GridMethod.Han
 
-function grid_groupbydepth(G::Grid{T, dim}) where {T, dim}
+function gridGroupByDepth(G::Grid{T, dim}) where {T, dim}
     I = unique(sort(depth.(G)))
     out = Dict(I .=> [empty(G) for _ in I ])
     for g in G
@@ -17,17 +17,17 @@ function grid_groupbydepth(G::Grid{T, dim}) where {T, dim}
     return out
 end
 
-set_forplot(G) = eachrow(reduce(hcat, map(coordinates, gridnodes(G))))
+xyAxes(G) = eachrow(reduce(hcat, map(coordinates, gridnodes(G))))
 
 @recipe function f(G::Grid{Float64,2};
                    r = 2,
                    R = 20,
                    f_ms = i -> r + R*(.5)^i, # Marker size
-                   f_ma = (d, dmin, dmax) -> (d - dmin)/(dmax - dmin), # Mark alpha/opacity
+                   f_ma = (d, dmin, dmax) -> (d - dmin + 1)/(dmax - dmin + 1), # Mark alpha/opacity
                    f_msw = (d, dmin, dmax) -> r/10 + (1 - f_ma(d, dmin, dmax))/r, # Border width (0 = No border)
                    color = "rgb(238,37,35)"
                    )
-    Dict_depth = grid_groupbydepth(G)
+    Dict_depth = gridGroupByDepth(G)
     I = sort!(collect(keys(Dict_depth))) # Sort it for the legend
     dmin = first(I)
     dmax = last(I)
@@ -41,7 +41,7 @@ set_forplot(G) = eachrow(reduce(hcat, map(coordinates, gridnodes(G))))
     shift = dmin -1
     # Plot each depth group
     for d in I
-        x, y = set_forplot(Dict_depth[d])
+        x, y = xyAxes(Dict_depth[d])
         @series begin
             seriestype := :scatter
             label := "Depth $d"
