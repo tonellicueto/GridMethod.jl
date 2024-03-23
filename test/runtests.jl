@@ -9,7 +9,6 @@ using GridMethod.Norms
 using GridMethod.ConditionNumbers
 const CN = ConditionNumbers
 using GridMethod.GridModule
-using GridMethod.GridBatch
 using GridMethod.Han
 using GridMethod.Coordinates
 
@@ -200,22 +199,6 @@ end
     end
 end
 
-# Test coordinate batching
-@testset "GridBatch " failfast=true begin
-    testBatches = sort(collect(flatten(
-        GridBatch.batchGrid(Float64,UInt(3),UInt(2),UInt(4),-1.0,1.0)
-    )))
-
-    expectedBatches = sort([
-        [l,r]
-        for l in range(-0.75,0.75,step=0.5)
-        for r in range(-0.75,0.75,step=0.5)
-    ])
-
-    @test testBatches == expectedBatches
-end
-
-# Test coordinate batching
 @testset "Han test" failfast=true begin
     HCMK.@var x,y
     polysys1 = HCMK.System(

@@ -1,7 +1,6 @@
 module Han
 using LinearAlgebra
 using ..GridModule
-using ..GridBatch
 using ..ConditionNumbers
 using ..Norms
 using ..Coordinates

@@ -29,9 +29,6 @@ using .GridModule
 include("Coordinates.jl")
 using .Coordinates
 
-include("GridBatch.jl")
-using .GridBatch
-
 include("Han.jl")
 using .Han
 
