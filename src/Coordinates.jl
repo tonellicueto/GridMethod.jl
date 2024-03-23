@@ -2,10 +2,31 @@ module Coordinates
 using .Iterators
 
 export splitCoordinate
+export generateCoordinates
 
-function findMaxCoordinate(L::Vector{Vector{T}}; dim::UInt=UInt(1)) where T <: Number
-    maxV = maxCoordinate(L; dim=dim)
-    return findfirst(v -> v == maxV, L)
+function generateCoordinates(
+    ::Type{T},
+    dim::Integer,
+    depth::UInt,
+    lower::T,
+    upper::T,
+) where T <: Number
+    sideRange = range(1,2^depth-1,step=2)
+
+    if dim > 1
+        gridTuples = product(
+            repeated(sideRange, dim)...
+        )
+    else
+        gridTuples = ((i,) for i in sideRange)
+    end
+
+    offset = [repeated(lower, dim)...]
+    scale = (upper - lower)/(2^depth)
+    return map(
+        t -> offset + [n*scale for n in t],
+        gridTuples
+    )
 end
 
 # scale is essentially the side length of the cube centered

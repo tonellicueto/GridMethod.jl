@@ -1,32 +1,6 @@
 module GridBatch
 using .Iterators
 export batchGrid
-export generateCoordinates
-
-function generateCoordinates(
-    ::Type{T},
-    dim::Integer,
-    depth::UInt,
-    lower::T,
-    upper::T,
-) where T <: Number
-    sideRange = range(1,2^depth-1,step=2)
-
-    if dim > 1
-        gridTuples = product(
-            repeated(sideRange, dim)...
-        )
-    else
-        gridTuples = ((i,) for i in sideRange)
-    end
-
-    offset = [repeated(lower, dim)...]
-    scale = (upper - lower)/(2^depth)
-    return map(
-        t -> offset + [n*scale for n in t],
-        gridTuples
-    )
-end
 
 function batchGrid(
     ::Type{T},
