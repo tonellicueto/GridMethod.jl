@@ -3,7 +3,6 @@ const HCMK = ModelKit
 
 using Plots
 using GridMethod.GridModule
-using GridMethod.GridPlot
 using GridMethod.Polynomial
 using GridMethod.Han
 
