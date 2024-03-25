@@ -12,3 +12,13 @@ This is a project aiming at implementing the Grid Method theoretically developed
 using Pkg
 Pkg.clone("https://github.com/tonellicueto/GridMethod.jl")
 ```
+
+### Unit tests
+From the REPL run
+```julia
+]
+activate .
+instantiate
+test
+```
+
