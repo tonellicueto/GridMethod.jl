@@ -187,15 +187,17 @@ end
 
         jacobianV = polysystem.jacobian(v)
         A2 = (
-            pinv(jacobianV)
-            *Diagonal(CN._vector_power(vhinf, d-ones(Float64, size(d)[1])))
-            *Δ^2
-        )
-        scale2 = 1/opnorm(A2, Inf)
+            pinv(
+                Diagonal(CN._vector_power(vhinf, d-ones(Float64, size(d)[1])))
+                *Δ^2
+            )
+            *jacobianV
+        ) 
+        scale2 = last(filter(x -> x!=0.0, svdvals(A2))) 
 
         condV = polyNorm1(polysystem)/maximum([scale1,scale2])
 
-        @test localC(polysystem, v) == condV
+        @test localC(polysystem, v)==condV
     end
 end
 

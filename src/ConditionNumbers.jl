@@ -13,8 +13,7 @@ function localC(
     f::PolynomialSystem{T},
     x::Vector{T};
     image=nothing,
-    jacobian=nothing,
-    jacobian_pinv=nothing
+    jacobian=nothing
 ) where T
     image = isnothing(image) ? f(x) : image
     scale1 = norm(
@@ -22,16 +21,15 @@ function localC(
         Inf
     )
 
-    jacobian = isnothing(jacobian) ? f.jacobian(x) : jacobian
-    jacobian_pinv = isnothing(jacobian_pinv) ? pinv(jacobian) : deepcopy(jacobian_pinv)
-    cols_pinv = eachcol(jacobian_pinv)
+    jacobian = isnothing(jacobian) ? f.jacobian(x) : deepcopy(jacobian)
+    rowsJacobian = eachrow(jacobian)
     broadcast!(
-        (col, d) -> (d^2)*col,
-        cols_pinv,
-        cols_pinv,
-        f.degrees,
+        (row, d) -> row/d^2,
+        rowsJacobian,
+        rowsJacobian,
+        f.degrees
     )
-    scale2 = 1/opnorm(jacobian_pinv, Inf)
+    scale2 = last(filter(x -> x!=0.0, svdvals(jacobian)))
 
     return polyNorm1(f)/maximum((scale1, scale2))
 end
