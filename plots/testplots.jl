@@ -1,6 +1,12 @@
+import Pkg
+Pkg.add([
+    "HomotopyContinuation",
+    "Plots"
+])
+Pkg.add(url="https://github.com/tonellicueto/GridMethod.jl.git")
+
 import HomotopyContinuation.ModelKit
 const HCMK = ModelKit
-
 using Plots
 using GridMethod.GridModule
 using GridMethod.Polynomial
