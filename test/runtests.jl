@@ -383,3 +383,30 @@ end
         [0.1875,0.1875],
     ]
 end
+
+@testset "ProjectiveGrid tests" failfast=true begin
+    HCMK.@var x,y
+    polysys1 = HCMK.System(
+        [
+        x^2 + y^2,
+        x*y - y^2,
+        ];
+        variables=[x,y]
+    )
+    jacobian1 = v -> HCMK.jacobian(polysys1, v)
+
+    gridPolySys1::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys1(v),
+        jacobian1,
+        HCMK.degrees(polysys1),
+        HCMK.support_coefficients(polysys1)[2]
+    )
+    PG1::ProjectiveGrid{Float64, UInt(2)} = ProjectiveGrid(
+        gridPolySys1,
+        UInt(2)
+    )
+
+    @test size(PG1.charts)[1] == 4
+    @test isnothing(PG1.est_condition)
+end

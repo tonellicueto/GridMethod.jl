@@ -3,6 +3,7 @@ using .Iterators
 
 export splitCoordinate
 export generateCoordinates
+export usualBasis
 
 function generateCoordinates(
     ::Type{T},
@@ -51,5 +52,17 @@ function splitCoordinate(
         u -> splitCoordinate(u,target_depth;depth=new_depth,scale=scale),
         vSplit
     ))
+end
+
+function usualBasis(::T, dim::UInt) where T <: Number
+    basisVectors = []
+
+    for i in range(1,dim)
+        ei = zeros(T, dim)
+        ei[i] = 1
+        basisVectors.push(ei)
+    end
+
+    return basisVectors
 end
 end # module

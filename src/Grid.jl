@@ -16,6 +16,7 @@ export polysys
 export gridnodes
 export est_condition
 export dim
+export ProjectiveGrid
 
 struct GridNode{T <: Number, dim}
     depth::UInt
@@ -106,4 +107,25 @@ function GridNode(
         )
     )
 end
+
+mutable struct ProjectiveGrid{T <: Number, dim}
+    polysys::PolynomialSystem{T}
+    charts::Vector{Grid{T, dim}}
+    est_condition::Union{T, Nothing}
+end
+
+function ProjectiveGrid(
+    polysys::PolynomialSystem{T},
+    dim::UInt
+) where T <: Number
+    return ProjectiveGrid{T, dim}(
+        polysys,
+        [
+            Grid{T, dim}(polysys, [], nothing)
+            for _ in range(1,2*dim)
+        ],
+        nothing
+    )
+end
+
 end
