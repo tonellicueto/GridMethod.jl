@@ -5,7 +5,6 @@ using ..ConditionNumbers
 import Base: ==
 
 export GridNode
-export GridNodeEvaluate
 export Grid
 export depth
 export coordinates
@@ -105,20 +104,6 @@ function GridNode(
             image=nodeImage,
             jacobian=nodeJacobian
         )
-    )
-end
-
-function GridNodeEvaluate(
-    grid::Grid{T, dim},
-    node::GridNode{T, dim}
-) where {T, dim}
-    nodeJacobian = polysys(grid).jacobian(coordinates(node))
-    GridNode{T, dim}(
-        depth(node),
-        coordinates(node),
-        image(node),
-        nodeJacobian,
-        localC(polysys(grid), coordinates(node); jacobian=nodeJacobian)
     )
 end
 end

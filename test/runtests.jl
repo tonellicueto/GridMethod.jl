@@ -113,7 +113,7 @@ end
     # Test node evaluation
     for _ in 1:length(grid)
         node = pop!(grid)
-        newNode = GridNodeEvaluate(grid, node)
+        newNode = GridNode(grid, depth(node), coordinates(node))
         pushfirst!(grid, newNode)
     end
 
