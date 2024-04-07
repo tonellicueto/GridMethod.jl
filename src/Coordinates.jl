@@ -54,13 +54,13 @@ function splitCoordinate(
     ))
 end
 
-function usualBasis(::T, dim::UInt) where T <: Number
+function usualBasis(::Type{T}, dim::UInt) where T <: Number
     basisVectors = []
 
     for i in range(1,dim)
         ei = zeros(T, dim)
         ei[i] = 1
-        basisVectors.push(ei)
+        push!(basisVectors,ei)
     end
 
     return basisVectors

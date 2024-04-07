@@ -382,14 +382,19 @@ end
         [0.1875,0.0625],
         [0.1875,0.1875],
     ]
+
+    basisR2 = usualBasis(Float64, UInt(2))
+    @test length(basisR2) == 2
+    @test basisR2[1] == [1.0, 0.0]
+    @test basisR2[2] == [0.0, 1.0]
 end
 
 @testset "ProjectiveGrid tests" failfast=true begin
     HCMK.@var x,y
     polysys1 = HCMK.System(
         [
-        x^2 + y^2,
-        x*y - y^2,
+        x + y,
+        x - y,
         ];
         variables=[x,y]
     )
@@ -409,4 +414,6 @@ end
 
     @test size(PG1.charts)[1] == 4
     @test isnothing(PG1.est_condition)
+
+    projectiveGridHan!(PG1,UInt(1);maxDepth=UInt(10))
 end

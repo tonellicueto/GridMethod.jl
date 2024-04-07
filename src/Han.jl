@@ -7,6 +7,7 @@ using ..Coordinates
 using .Iterators
 
 export gridHan!
+export projectiveGridHan!
 
 function gridHan!(
     G::Grid{T, dim},
@@ -78,8 +79,9 @@ function projectiveGridHan!(
     maxDepth::Union{UInt,Nothing}=nothing
 ) where {T, dim}
     basisVectors = usualBasis(T, UInt(dim))
-    Threads.@threads for (i,G) in enumerate(PG.charts)
-        basisIndex = ((i-1)%dim)+1
+    enumeratedCharts = collect(enumerate(PG.charts))
+    Threads.@threads for (i,G) in enumeratedCharts
+        basisIndex = UInt(((i-1)%dim)+1)
         vectorSign = (-1)^(floor(Int,(i-1)/dim))
         gridHan!(
             G,
@@ -88,21 +90,21 @@ function projectiveGridHan!(
             upper=upper,
             maxDepth=maxDepth,
             offset=basisVectors[basisIndex]*vectorSign,
-            _split=_projectiveSplitCoordinate(basisIndex)
+            _split=_projectiveSplitCoordinate(T, basisIndex)
         )
     end
     
     PG.est_condition = maximum(est_condition, PG.charts)
 end
 
-function _projectiveSplitCoordinate(dimExclude::UInt)
+function _projectiveSplitCoordinate(::Type{T}, dimExclude::UInt) where T <: Number
     function __projectiveSplitCoordinate(
         v::Vector{T},
-        target_depth::UInt,
-        depth::UInt,
-        scale::T
+        target_depth::UInt;
+        depth::UInt = UInt(1),
+        scale::T = one(T)
     )
-        vProjection = cat(v[1:dimExclude-1],v[dimExclude+1:length(v)])
+        vProjection = cat(v[1:dimExclude-1],v[dimExclude+1:length(v)];dims=1)
         coords = splitCoordinate(
             vProjection,
             target_depth;
@@ -110,7 +112,7 @@ function _projectiveSplitCoordinate(dimExclude::UInt)
             scale=scale
         )
         return [
-            cat(u[1:dimExclude-1],v[dimExclude],u[dimExclude:length(u)])
+            cat(u[1:dimExclude-1],v[dimExclude],u[dimExclude:length(u)];dims=1)
             for u in coords
         ]
     end
