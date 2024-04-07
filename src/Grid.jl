@@ -1,4 +1,5 @@
 module GridModule
+using LinearAlgebra
 using Parameters
 using ..Polynomial
 using ..ConditionNumbers
@@ -118,8 +119,15 @@ function ProjectiveGrid(
     polysys::PolynomialSystem{T},
     dim::UInt
 ) where T <: Number
+    projectivePolysys = PolynomialSystem{T}(
+        v -> polysys(v/norm(v,2)),
+        v -> polysys.jacobian(v/norm(v,2)),
+        polysys.degrees,
+        polysys.coefficients 
+    )
+
     return ProjectiveGrid{T, dim}(
-        polysys,
+        projectivePolysys,
         [
             Grid{T, dim}(polysys, [], nothing)
             for _ in range(1,2*dim)
