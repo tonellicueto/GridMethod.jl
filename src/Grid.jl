@@ -91,7 +91,8 @@ end
 function GridNode(
     grid::Grid{T, dim},
     depth::UInt,
-    coordinates::Vector{T}
+    coordinates::Vector{T};
+    localCondition=localC
 ) where {T, dim}
     nodeImage = polysys(grid)(coordinates)
     nodeJacobian = polysys(grid).jacobian(coordinates)
@@ -100,7 +101,7 @@ function GridNode(
         coordinates,
         nodeImage,
         nodeJacobian,
-        localC(
+        localCondition(
             polysys(grid),
             coordinates;
             image=nodeImage,
@@ -119,9 +120,16 @@ function ProjectiveGrid(
     polysys::PolynomialSystem{T},
     dim::UInt
 ) where T <: Number
+    function _projectiveJacobian(v::Vector{T})
+        normalizedV = v/norm(v,2)
+        jacobianP = polysys.jacobian(normalizedV)
+
+        return jacobianP*(I(dim)-normalizedV*transpose(normalizedV))
+    end
+
     projectivePolysys = PolynomialSystem{T}(
         v -> polysys(v/norm(v,2)),
-        v -> polysys.jacobian(v/norm(v,2)),
+        _projectiveJacobian,
         polysys.degrees,
         polysys.coefficients 
     )
@@ -129,7 +137,7 @@ function ProjectiveGrid(
     return ProjectiveGrid{T, dim}(
         projectivePolysys,
         [
-            Grid{T, dim}(polysys, [], nothing)
+            Grid{T, dim}(projectivePolysys, [], nothing)
             for _ in range(1,2*dim)
         ],
         nothing

@@ -199,6 +199,22 @@ end
 
         @test localC(polysystem, v)==condV
     end
+
+    # TODO finish unit testing projectiveLocalC
+    polysys2_ = HCMK.System(
+        [x1^2*x2 - x1*x2^2];
+        variables=[x1,x2]
+    )
+    jacobian2_ = v -> HCMK.jacobian(polysys2_, v)
+
+    polysystem2::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys2_(v),
+        jacobian2_,
+        HCMK.degrees(polysys2_),
+        HCMK.support_coefficients(polysys2_)[2]
+    )
+
 end
 
 @testset "Han test" failfast=true begin
@@ -416,4 +432,134 @@ end
     @test isnothing(PG1.est_condition)
 
     projectiveGridHan!(PG1,UInt(1);maxDepth=UInt(10))
+
+    HCMK.@var z
+    polysys2 = HCMK.System(
+        [
+        x + y + z,
+        ];
+        variables=[x,y,z]
+    )
+    jacobian2 = v -> HCMK.jacobian(polysys2, v)
+
+    gridPolySys2::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys2(v),
+        jacobian2,
+        HCMK.degrees(polysys2),
+        HCMK.support_coefficients(polysys2)[2]
+    )
+    PG2::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
+        gridPolySys2,
+        UInt(3)
+    )
+
+    @test size(PG2.charts)[1] == 6
+    @test isnothing(PG2.est_condition)
+
+    projectiveGridHan!(PG2,UInt(1);maxDepth=UInt(10))
+
+    polysys3 = HCMK.System(
+        [
+        x + y + z,
+        x + y + (1+1/100)*z,
+        ];
+        variables=[x,y,z]
+    )
+    jacobian3 = v -> HCMK.jacobian(polysys3, v)
+
+    gridPolySys3::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys3(v),
+        jacobian3,
+        HCMK.degrees(polysys3),
+        HCMK.support_coefficients(polysys3)[2]
+    )
+    PG3::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
+        gridPolySys3,
+        UInt(3)
+    )
+
+    @test size(PG3.charts)[1] == 6
+    @test isnothing(PG3.est_condition)
+
+    projectiveGridHan!(PG3,UInt(1);maxDepth=UInt(10))
+
+    polysys4 = HCMK.System(
+        [
+        x^2 + y^2 - z^2,
+        z,
+        ];
+        variables=[x,y,z]
+    )
+    jacobian4 = v -> HCMK.jacobian(polysys4, v)
+
+    gridPolySys4::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys4(v),
+        jacobian4,
+        HCMK.degrees(polysys4),
+        HCMK.support_coefficients(polysys4)[2]
+    )
+    PG4::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
+        gridPolySys4,
+        UInt(3)
+    )
+
+    @test size(PG4.charts)[1] == 6
+    @test isnothing(PG4.est_condition)
+
+    projectiveGridHan!(PG4,UInt(1);maxDepth=UInt(10))
+
+    polysys5 = HCMK.System(
+        [
+        x^2 - y*z,
+        z,
+        ];
+        variables=[x,y,z]
+    )
+    jacobian5 = v -> HCMK.jacobian(polysys5, v)
+
+    gridPolySys5::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys5(v),
+        jacobian5,
+        HCMK.degrees(polysys5),
+        HCMK.support_coefficients(polysys5)[2]
+    )
+    PG5::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
+        gridPolySys5,
+        UInt(3)
+    )
+
+    @test size(PG5.charts)[1] == 6
+    @test isnothing(PG5.est_condition)
+
+    projectiveGridHan!(PG5,UInt(1);maxDepth=UInt(10))
+
+    polysys6 = HCMK.System(
+        [
+        x^2 - y^2 - 1,
+        z,
+        ];
+        variables=[x,y,z]
+    )
+    jacobian6 = v -> HCMK.jacobian(polysys6, v)
+
+    gridPolySys6::PolynomialSystem{Float64} =
+    PolynomialSystem{Float64}(
+        v -> polysys6(v),
+        jacobian6,
+        HCMK.degrees(polysys6),
+        HCMK.support_coefficients(polysys6)[2]
+    )
+    PG6::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
+        gridPolySys6,
+        UInt(3)
+    )
+
+    @test size(PG6.charts)[1] == 6
+    @test isnothing(PG6.est_condition)
+
+    projectiveGridHan!(PG6,UInt(1);maxDepth=UInt(10))
 end

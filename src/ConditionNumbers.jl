@@ -4,6 +4,7 @@ using ..Polynomial
 using ..Norms
 
 export localC
+export projectiveLocalC
 
 function _vector_power(x::T, v::Vector{T}) where T <: Number
     return map(y -> x^y, v)
@@ -32,5 +33,30 @@ function localC(
     scale2 = last(filter(x -> x!=0.0, svdvals(jacobian)))
 
     return polyNorm1(f)/maximum((scale1, scale2))
+end
+
+function projectiveLocalC(
+    f::PolynomialSystem{T},
+    x::Vector{T};
+    image=nothing,
+    jacobian=nothing
+) where T
+    image = isnothing(image) ? f(x) : image
+    imageNorm = norm(
+        map(((d,y),) -> y/sqrt(d), zip(f.degrees, image)),
+        2
+    )
+
+    jacobian = isnothing(jacobian) ? f.jacobian(x) : deepcopy(jacobian)
+    rowsJacobian = eachrow(jacobian)
+    broadcast!(
+        (row, d) -> row/d,
+        rowsJacobian,
+        rowsJacobian,
+        f.degrees
+    )
+    sigmaq = last(svdvals(jacobian))
+
+    return sqrt(length(image)/(imageNorm^2 + sigmaq^2))
 end
 end # module

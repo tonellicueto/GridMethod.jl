@@ -16,6 +16,7 @@ function gridHan!(
     upper::T=one(T),
     maxDepth::Union{UInt,Nothing}=nothing,
     offset::Union{Vector{T},Nothing}=nothing,
+    nodeCondition=localC,
     _split=splitCoordinate
 ) where {T, dim}
     local_depth = depth
@@ -34,7 +35,7 @@ function gridHan!(
     gridLock = ReentrantLock()
     while length(coordinates) > 0
         Threads.@threads for coord in coordinates 
-            node = GridNode(G,local_depth,coord)
+            node = GridNode(G,local_depth,coord;localCondition=nodeCondition)
             if _HanCondition(node) || (!isnothing(maxDepth) && local_depth == maxDepth)
                 lock(gridLock)
                 try
@@ -76,7 +77,8 @@ function projectiveGridHan!(
     depth::UInt;
     lower::T=-1*one(T),
     upper::T=one(T),
-    maxDepth::Union{UInt,Nothing}=nothing
+    maxDepth::Union{UInt,Nothing}=nothing,
+    projectiveCondition=projectiveLocalC
 ) where {T, dim}
     basisVectors = usualBasis(T, UInt(dim))
     enumeratedCharts = collect(enumerate(PG.charts))
@@ -90,6 +92,7 @@ function projectiveGridHan!(
             upper=upper,
             maxDepth=maxDepth,
             offset=basisVectors[basisIndex]*vectorSign,
+            nodeCondition=projectiveCondition,
             _split=_projectiveSplitCoordinate(T, basisIndex)
         )
     end
