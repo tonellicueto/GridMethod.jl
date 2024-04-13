@@ -2,3 +2,4 @@ Manifest.toml
 .DS_Store
 .vscode
 *.pdf
+.ipynb_checkpoints/Grid Method - Polynomial System Solving-checkpoint.ipynb
