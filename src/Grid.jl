@@ -118,8 +118,13 @@ end
 
 function ProjectiveGrid(
     polysys::PolynomialSystem{T},
-    dim::UInt
+    dim::UInt;
+    polyNorm=nothing
 ) where T <: Number
+    if !isnothing(polyNorm)
+        polysys=normalizePoly(polysys,polyNorm)
+    end
+
     function _projectiveJacobian(v::Vector{T})
         normalizedV = v/norm(v,2)
         jacobianP = polysys.jacobian(normalizedV)

@@ -7,6 +7,7 @@ using Logging
 export polyNorm1
 export hinfNorm
 export matrixInfPNorm
+export weylNorm
 
 function polyNorm1(poly::PolynomialSystem{T})::T where T
     # the 1-norm of a polynomial system is the maximum of
@@ -31,5 +32,20 @@ function matrixInfPNorm(A::Matrix{T}; p=2) where T <: Number
     )
 
     return maximum(map(cols -> norm(sum(cols), p), colMultipleIter))
+end
+
+function weylNorm(
+    degree::Integer,
+    monomials::Vector{Vector{S}},
+    coefficients::Vector{T}
+) where {S <: Integer, T <: Number}
+    return sqrt(sum([
+        _multinomial(degree, monomials[i])*coefficients[i]^2
+        for i in eachindex(coefficients)
+    ]))
+end
+
+function _multinomial(numerator::Integer, denominators::Vector{S}) where S<:Integer
+    return factorial(numerator)/reduce(*,map(factorial,denominators))
 end
 end # module

@@ -2,6 +2,7 @@ module Polynomial
 using LinearAlgebra
 
 export PolynomialSystem
+export normalizePoly
 
 struct PolynomialSystem{T <: Number}
     evaluate::Function
@@ -15,18 +16,18 @@ function (p::PolynomialSystem{T})(x::Vector{T}) where T
     p.evaluate(x)
 end
 
-function normalize(P::PolynomialSystem{T}; polyNorm=nothing) where T
-    if isnothing(polyNorm)
-        polyNorm = v -> norm(v, 1)
-    end
-
-    invnorms = [polyNorm(v) for v in P.coefficients]
+function normalizePoly(P::PolynomialSystem{T}, polyNorm) where T
+    invnorms = [
+        polyNorm(P.degrees[i], P.monomialDegrees[i], P.coefficients[i])
+        for i in eachindex(P.degrees)
+    ]
     invnormsDiag = Diagonal(invnorms)
     return PolynomialSystem{T}(
         v -> invnorms.*P(v),
         v -> invnormsDiag*P.jacobian(v),
         P.degrees,
-        P.coefficients.*invnorms
+        P.coefficients.*invnorms,
+        P.monomialDegrees
     )
 end
 end

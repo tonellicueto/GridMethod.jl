@@ -177,6 +177,11 @@ end
     # matrixInfPNorm
     A = [1 0 1; 1 1 0]
     @test matrixInfPNorm(A; p=2)==sqrt(8)
+
+    degree = 3
+    monomials = [[3, 0, 0], [1, 1, 1,], [1,0,0], [0, 1, 2]]
+    coefficients = [-1.0, 2.0, -3.0, 10.0]
+    @test weylNorm(degree, monomials, coefficients)==sqrt(379.0)
 end
 
 @testset "Condition Number Tests" failfast=true begin
