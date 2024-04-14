@@ -12,6 +12,32 @@ using GridMethod.GridModule
 using GridMethod.Han
 using GridMethod.Coordinates
 
+function _convertHCMKDegreesToPolynomial(degrees::Vector{Matrix{T}}) where T
+    return [
+        collect(eachcol(M))
+        for M in degrees
+    ]
+end
+
+@testset "Convert support coefficients to Polynomial format" failfast=true begin
+    HCMK.@var x,y,z
+    P = HCMK.System(
+        [x-y, y-z, x^2 -z^3, x^2*y^3-2.0*z^5+x*y^2*z^2];
+        variables=[x,y,z]
+    )
+
+    L = _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(P)[1])
+    @test L[1][1] == [1, 0, 0] 
+    @test L[1][2] == [0, 1, 0] 
+    @test L[2][1] == [0, 1, 0] 
+    @test L[2][2] == [0, 0, 1] 
+    @test L[3][1] == [0, 0, 3] 
+    @test L[3][2] == [2, 0, 0] 
+    @test L[4][1] == [2, 3, 0] 
+    @test L[4][2] == [1, 2, 2] 
+    @test L[4][3] == [0, 0, 5] 
+end
+
 
 # Test suite for GridNode
 @testset "GridNode Basic Tests" failfast=true begin
@@ -67,7 +93,8 @@ end
         v -> polysys_(v),
         jacobian_,
         HCMK.degrees(polysys_),
-        HCMK.support_coefficients(polysys_)[2]
+        HCMK.support_coefficients(polysys_)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys_)[1])
     )
     # Make a Grid for testing
     grid = Grid{Float64, 3}(gridPolySys, [], nothing)
@@ -137,7 +164,8 @@ end
         v -> polysys_(v),
         jacobian_,
         HCMK.degrees(polysys_),
-        HCMK.support_coefficients(polysys_)[2]
+        HCMK.support_coefficients(polysys_)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys_)[1])
     )
     
     @test polyNorm1(polysystem) == 3.0 
@@ -167,7 +195,8 @@ end
         v -> polysys_(v),
         jacobian_,
         HCMK.degrees(polysys_),
-        HCMK.support_coefficients(polysys_)[2]
+        HCMK.support_coefficients(polysys_)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys_)[1])
     )
 
     testVectors = [
@@ -212,7 +241,8 @@ end
         v -> polysys2_(v),
         jacobian2_,
         HCMK.degrees(polysys2_),
-        HCMK.support_coefficients(polysys2_)[2]
+        HCMK.support_coefficients(polysys2_)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys2_)[1])
     )
 
 end
@@ -233,7 +263,8 @@ end
         v -> polysys1(v),
         jacobian1,
         HCMK.degrees(polysys1),
-        HCMK.support_coefficients(polysys1)[2]
+        HCMK.support_coefficients(polysys1)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys1)[1])
     )
     # Make a Grid for testing
     grid1 = Grid{Float64, 2}(gridPolySys1, [], nothing)
@@ -256,7 +287,8 @@ end
         v -> polysys2(v),
         jacobian2,
         HCMK.degrees(polysys2),
-        HCMK.support_coefficients(polysys2)[2]
+        HCMK.support_coefficients(polysys2)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys2)[1])
     )
     # Make a Grid for testing
     grid2 = Grid{Float64, 2}(gridPolySys2, [], nothing)
@@ -279,7 +311,8 @@ end
         v -> polysys3(v),
         jacobian3,
         HCMK.degrees(polysys3),
-        HCMK.support_coefficients(polysys3)[2]
+        HCMK.support_coefficients(polysys3)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys3)[1])
     )
     # Make a Grid for testing
     grid3 = Grid{Float64, 2}(gridPolySys3, [], nothing)
@@ -302,7 +335,8 @@ end
         v -> polysys4(v),
         jacobian4,
         HCMK.degrees(polysys4),
-        HCMK.support_coefficients(polysys4)[2]
+        HCMK.support_coefficients(polysys4)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys4)[1])
     )
     # Make a Grid for testing
     grid4 = Grid{Float64, 2}(gridPolySys4, [], nothing)
@@ -325,7 +359,8 @@ end
         v -> polysys5(v),
         jacobian5,
         HCMK.degrees(polysys5),
-        HCMK.support_coefficients(polysys5)[2]
+        HCMK.support_coefficients(polysys5)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys5)[1])
     )
     # Make a Grid for testing
     grid5 = Grid{Float64, 2}(gridPolySys5, [], nothing)
@@ -348,7 +383,8 @@ end
         v -> polysys6(v),
         jacobian6,
         HCMK.degrees(polysys6),
-        HCMK.support_coefficients(polysys6)[2]
+        HCMK.support_coefficients(polysys6)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys6)[1])
     )
     # Make a Grid for testing
     grid6 = Grid{Float64, 2}(gridPolySys6, [], nothing)
@@ -421,7 +457,8 @@ end
         v -> polysys1(v),
         jacobian1,
         HCMK.degrees(polysys1),
-        HCMK.support_coefficients(polysys1)[2]
+        HCMK.support_coefficients(polysys1)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys1)[1])
     )
     PG1::ProjectiveGrid{Float64, UInt(2)} = ProjectiveGrid(
         gridPolySys1,
@@ -447,7 +484,8 @@ end
         v -> polysys2(v),
         jacobian2,
         HCMK.degrees(polysys2),
-        HCMK.support_coefficients(polysys2)[2]
+        HCMK.support_coefficients(polysys2)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys2)[1])
     )
     PG2::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
         gridPolySys2,
@@ -473,7 +511,8 @@ end
         v -> polysys3(v),
         jacobian3,
         HCMK.degrees(polysys3),
-        HCMK.support_coefficients(polysys3)[2]
+        HCMK.support_coefficients(polysys3)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys3)[1])
     )
     PG3::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
         gridPolySys3,
@@ -499,7 +538,8 @@ end
         v -> polysys4(v),
         jacobian4,
         HCMK.degrees(polysys4),
-        HCMK.support_coefficients(polysys4)[2]
+        HCMK.support_coefficients(polysys4)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys4)[1])
     )
     PG4::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
         gridPolySys4,
@@ -525,7 +565,8 @@ end
         v -> polysys5(v),
         jacobian5,
         HCMK.degrees(polysys5),
-        HCMK.support_coefficients(polysys5)[2]
+        HCMK.support_coefficients(polysys5)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys5)[1])
     )
     PG5::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
         gridPolySys5,
@@ -551,7 +592,8 @@ end
         v -> polysys6(v),
         jacobian6,
         HCMK.degrees(polysys6),
-        HCMK.support_coefficients(polysys6)[2]
+        HCMK.support_coefficients(polysys6)[2],
+        _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys6)[1])
     )
     PG6::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
         gridPolySys6,

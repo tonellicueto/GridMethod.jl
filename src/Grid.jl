@@ -131,7 +131,8 @@ function ProjectiveGrid(
         v -> polysys(v/norm(v,2)),
         _projectiveJacobian,
         polysys.degrees,
-        polysys.coefficients 
+        polysys.coefficients,
+        polysys.monomialDegrees
     )
 
     return ProjectiveGrid{T, dim}(
