@@ -643,4 +643,85 @@ end
     @test isnothing(PG6.est_condition)
 
     projectiveGridHan!(PG6,UInt(1);maxDepth=UInt(10))
+
+    # Test min depth increase
+    oldMinDepthPG6 = minimum(
+        G -> minimum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    oldMaxDepthPG6 = maximum(
+        G -> maximum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    projectiveIncreaseMinDepth!(PG6, UInt(5);scale=2.0)
+    newMinDepthPG6 = minimum(
+        G -> minimum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    newMaxDepthPG6 = maximum(
+        G -> maximum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    @test newMinDepthPG6==max(5,oldMinDepthPG6)
+    @test newMaxDepthPG6==max(5,oldMaxDepthPG6)
+
+    oldMinDepthPG6 = minimum(
+        G -> minimum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    oldMaxDepthPG6 = maximum(
+        G -> maximum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    projectiveIncreaseDepth!(PG6, UInt(2);scale=2.0)
+    newMinDepthPG6 = minimum(
+        G -> minimum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    newMaxDepthPG6 = maximum(
+        G -> maximum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    @test newMinDepthPG6==oldMinDepthPG6+2
+    @test newMaxDepthPG6==oldMaxDepthPG6+2
+
+    oldMinDepthPG6 = minimum(
+        G -> minimum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    oldMaxDepthPG6 = maximum(
+        G -> maximum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    projectiveIncreaseMinDepth!(PG6, UInt(8);scale=2.0,nodeFilter=(node)->depth(node)≤10)
+    newMinDepthPG6 = minimum(
+        G -> minimum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    newMaxDepthPG6 = maximum(
+        G -> maximum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    @test newMinDepthPG6==max(oldMinDepthPG6,8)
+    @test newMaxDepthPG6≤10
+
+    oldMinDepthPG6 = minimum(
+        G -> minimum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    oldMaxDepthPG6 = maximum(
+        G -> maximum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    projectiveIncreaseDepth!(PG6, UInt(1);scale=2.0,nodeFilter=(node)->depth(node)≤10)
+    newMinDepthPG6 = minimum(
+        G -> minimum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    newMaxDepthPG6 = maximum(
+        G -> maximum(depth, gridnodes(G)),
+        PG6.charts
+    )
+    @test newMinDepthPG6==max(oldMinDepthPG6,9)
+    @test newMaxDepthPG6≤10
 end

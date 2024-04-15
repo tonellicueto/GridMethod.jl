@@ -10,13 +10,58 @@ export gridHan!
 export projectiveGridHan!
 export increaseMinDepth!
 export increaseDepth!
+export projectiveIncreaseMinDepth!
+export projectiveIncreaseDepth!
+
+function projectiveIncreaseMinDepth!(
+    PG::ProjectiveGrid{T, dim},
+    targetDepth::UInt;
+    scale::T = one(T),
+    nodeCondition=projectiveLocalC,
+    nodeFilter=(node)->true
+) where {T, dim}
+    enumeratedCharts = collect(enumerate(PG.charts))
+    Threads.@threads for (i,G) in enumeratedCharts
+        basisIndex = UInt(((i-1)%dim)+1)
+        increaseMinDepth!(
+            G,
+            targetDepth;
+            scale=scale,
+            nodeCondition=nodeCondition,
+            nodeFilter=nodeFilter,
+            _split=_projectiveSplitCoordinate(T, basisIndex)
+        )
+    end
+end
+
+function projectiveIncreaseDepth!(
+    PG::ProjectiveGrid{T, dim},
+    extraDepth::UInt;
+    scale::T = one(T),
+    nodeCondition=projectiveLocalC,
+    nodeFilter=(node)->true
+) where {T, dim}
+    enumeratedCharts = collect(enumerate(PG.charts))
+    Threads.@threads for (i,G) in enumeratedCharts
+        basisIndex = UInt(((i-1)%dim)+1)
+        increaseDepth!(
+            G,
+            extraDepth;
+            scale=scale,
+            nodeCondition=nodeCondition,
+            nodeFilter=nodeFilter,
+            _split=_projectiveSplitCoordinate(T, basisIndex)
+        )
+    end
+end
 
 function increaseMinDepth!(
     G::Grid{T, dim},
     targetDepth::UInt;
     scale::T = one(T),
     nodeCondition=localC,
-    nodeFilter=(node)->true
+    nodeFilter=(node)->true,
+    _split=splitCoordinate
 ) where {T, dim}
     gridLock = ReentrantLock()
     Threads.@threads for _ in 1:length(G)
@@ -32,7 +77,7 @@ function increaseMinDepth!(
             if depth(node) ≥ targetDepth
                 push!(newNodes,node)
             else
-                newCoordinates = splitCoordinate(
+                newCoordinates = _split(
                     coordinates(node),
                     targetDepth;
                     depth=depth(node),
@@ -65,7 +110,8 @@ function increaseDepth!(
     extraDepth::UInt;
     scale::T = one(T),
     nodeCondition=localC,
-    nodeFilter=(node)->true 
+    nodeFilter=(node)->true,
+    _split=splitCoordinate
 ) where {T, dim}
     gridLock = ReentrantLock()
     Threads.@threads for _ in 1:length(G)
@@ -79,7 +125,7 @@ function increaseDepth!(
         newNodes = []
         if nodeFilter(node)
             newDepth = depth(node)+extraDepth
-            newCoordinates = splitCoordinate(
+            newCoordinates = _split(
                 coordinates(node),
                 newDepth;
                 depth=depth(node),
