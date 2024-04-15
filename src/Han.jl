@@ -11,7 +11,13 @@ export projectiveGridHan!
 export increaseMinDepth!
 export increaseDepth!
 
-function increaseMinDepth!(G::Grid{T, dim}, targetDepth::UInt; scale::T = one(T), nodeCondition=localC) where {T, dim}
+function increaseMinDepth!(
+    G::Grid{T, dim},
+    targetDepth::UInt;
+    scale::T = one(T),
+    nodeCondition=localC,
+    nodeFilter=(node)->true
+) where {T, dim}
     gridLock = ReentrantLock()
     Threads.@threads for _ in 1:length(G)
         node = nothing
@@ -22,28 +28,29 @@ function increaseMinDepth!(G::Grid{T, dim}, targetDepth::UInt; scale::T = one(T)
             unlock(gridLock)
         end
         newNodes = []
-        if depth(node) ≥ targetDepth
-            push!(newNodes,node)
-        else
-            newCoordinates = splitCoordinate(
-                coordinates(node),
-                targetDepth;
-                depth=depth(node),
-                scale=scale
-            )
-            for coord in newCoordinates
-                push!(
-                    newNodes,
-                    GridNode(
+        if nodeFilter(node)
+            if depth(node) ≥ targetDepth
+                push!(newNodes,node)
+            else
+                newCoordinates = splitCoordinate(
+                    coordinates(node),
+                    targetDepth;
+                    depth=depth(node),
+                    scale=scale
+                )
+                for coord in newCoordinates
+                    newNode = GridNode(
                         G,
                         targetDepth,
                         coord;
                         localCondition=nodeCondition
                     )
-                )
+                    if nodeFilter(newNode)
+                        push!(newNodes,newNode)
+                    end
+                end
             end
-        end
-
+        end 
         lock(gridLock)
         try
             append!(G,newNodes)
@@ -53,7 +60,13 @@ function increaseMinDepth!(G::Grid{T, dim}, targetDepth::UInt; scale::T = one(T)
     end
 end
 
-function increaseDepth!(G::Grid{T, dim}, extraDepth::UInt; scale::T = one(T), nodeCondition=localC) where {T, dim}
+function increaseDepth!(
+    G::Grid{T, dim},
+    extraDepth::UInt;
+    scale::T = one(T),
+    nodeCondition=localC,
+    nodeFilter=(node)->true 
+) where {T, dim}
     gridLock = ReentrantLock()
     Threads.@threads for _ in 1:length(G)
         node = nothing
@@ -64,25 +77,26 @@ function increaseDepth!(G::Grid{T, dim}, extraDepth::UInt; scale::T = one(T), no
             unlock(gridLock)
         end
         newNodes = []
-        newDepth = depth(node)+extraDepth
-        newCoordinates = splitCoordinate(
-            coordinates(node),
-            newDepth;
-            depth=depth(node),
-            scale=scale
-        )
-        for coord in newCoordinates
-            push!(
-                newNodes,
-                GridNode(
+        if nodeFilter(node)
+            newDepth = depth(node)+extraDepth
+            newCoordinates = splitCoordinate(
+                coordinates(node),
+                newDepth;
+                depth=depth(node),
+                scale=scale
+            )
+            for coord in newCoordinates
+                newNode = GridNode(
                     G,
                     newDepth,
                     coord;
                     localCondition=nodeCondition
                 )
-            )
+                if nodeFilter(newNode)
+                    push!(newNodes,newNode)
+                end
+            end
         end
-
         lock(gridLock)
         try
             append!(G,newNodes)

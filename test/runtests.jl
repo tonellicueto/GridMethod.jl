@@ -404,13 +404,33 @@ end
 
     increaseMinDepth!(grid6, UInt(5);scale=2.0)
     newMinDepthGrid6 = minimum(depth, gridnodes(grid6))
-    @test newMinDepthGrid6==5
+    newMaxDepthGrid6 = maximum(depth, gridnodes(grid6))
+    @test newMinDepthGrid6==max(5,minDepthGrid6)
+    @test newMaxDepthGrid6==maxDepthGrid6
 
+    oldMinDepthGrid6 = minimum(depth, gridnodes(grid6))
+    oldMaxDepthGrid6 = maximum(depth, gridnodes(grid6))
     increaseDepth!(grid6, UInt(2);scale=2.0)
     newMinDepthGrid6 = minimum(depth, gridnodes(grid6))
     newMaxDepthGrid6 = maximum(depth, gridnodes(grid6))
-    @test newMinDepthGrid6==7
-    @test newMaxDepthGrid6==12
+    @test newMinDepthGrid6==oldMinDepthGrid6+2
+    @test newMaxDepthGrid6==oldMaxDepthGrid6+2
+
+    oldMinDepthGrid6 = minimum(depth, gridnodes(grid6))
+    oldMaxDepthGrid6 = maximum(depth, gridnodes(grid6))
+    increaseMinDepth!(grid6, UInt(8);scale=2.0,nodeFilter=(node)->depth(node)≤10)
+    newMinDepthGrid6 = minimum(depth, gridnodes(grid6))
+    newMaxDepthGrid6 = maximum(depth, gridnodes(grid6))
+    @test newMinDepthGrid6==max(oldMinDepthGrid6,8)
+    @test newMaxDepthGrid6≤10
+
+    oldMinDepthGrid6 = minimum(depth, gridnodes(grid6))
+    oldMaxDepthGrid6 = maximum(depth, gridnodes(grid6))
+    increaseDepth!(grid6, UInt(1);scale=2.0,nodeFilter=(node)->depth(node)≤10)
+    newMinDepthGrid6 = minimum(depth, gridnodes(grid6))
+    newMaxDepthGrid6 = maximum(depth, gridnodes(grid6))
+    @test newMinDepthGrid6==max(oldMinDepthGrid6,9)
+    @test newMaxDepthGrid6≤10
 end
 
 @testset "Coordinates test" failfast=true begin
