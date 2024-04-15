@@ -8,6 +8,89 @@ using .Iterators
 
 export gridHan!
 export projectiveGridHan!
+export increaseMinDepth!
+export increaseDepth!
+
+function increaseMinDepth!(G::Grid{T, dim}, targetDepth::UInt; scale::T = one(T), nodeCondition=localC) where {T, dim}
+    gridLock = ReentrantLock()
+    Threads.@threads for _ in 1:length(G)
+        node = nothing
+        lock(gridLock)
+        try
+            node = popfirst!(G)
+        finally
+            unlock(gridLock)
+        end
+        newNodes = []
+        if depth(node) ≥ targetDepth
+            push!(newNodes,node)
+        else
+            newCoordinates = splitCoordinate(
+                coordinates(node),
+                targetDepth;
+                depth=depth(node),
+                scale=scale
+            )
+            for coord in newCoordinates
+                push!(
+                    newNodes,
+                    GridNode(
+                        G,
+                        targetDepth,
+                        coord;
+                        localCondition=nodeCondition
+                    )
+                )
+            end
+        end
+
+        lock(gridLock)
+        try
+            append!(G,newNodes)
+        finally
+            unlock(gridLock)
+        end
+    end
+end
+
+function increaseDepth!(G::Grid{T, dim}, extraDepth::UInt; scale::T = one(T), nodeCondition=localC) where {T, dim}
+    gridLock = ReentrantLock()
+    Threads.@threads for _ in 1:length(G)
+        node = nothing
+        lock(gridLock)
+        try
+            node = popfirst!(G)
+        finally
+            unlock(gridLock)
+        end
+        newNodes = []
+        newDepth = depth(node)+extraDepth
+        newCoordinates = splitCoordinate(
+            coordinates(node),
+            newDepth;
+            depth=depth(node),
+            scale=scale
+        )
+        for coord in newCoordinates
+            push!(
+                newNodes,
+                GridNode(
+                    G,
+                    newDepth,
+                    coord;
+                    localCondition=nodeCondition
+                )
+            )
+        end
+
+        lock(gridLock)
+        try
+            append!(G,newNodes)
+        finally
+            unlock(gridLock)
+        end
+    end
+end
 
 function gridHan!(
     G::Grid{T, dim},

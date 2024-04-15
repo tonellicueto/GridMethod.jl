@@ -397,6 +397,20 @@ end
     @test length(grid6) == 0
     gridHan!(grid6,UInt(1);maxDepth=UInt(10))
     @test length(grid6) > 0
+
+    # Test min depth increase
+    minDepthGrid6 = minimum(depth, gridnodes(grid6))
+    maxDepthGrid6 = maximum(depth, gridnodes(grid6))
+
+    increaseMinDepth!(grid6, UInt(5);scale=2.0)
+    newMinDepthGrid6 = minimum(depth, gridnodes(grid6))
+    @test newMinDepthGrid6==5
+
+    increaseDepth!(grid6, UInt(2);scale=2.0)
+    newMinDepthGrid6 = minimum(depth, gridnodes(grid6))
+    newMaxDepthGrid6 = maximum(depth, gridnodes(grid6))
+    @test newMinDepthGrid6==7
+    @test newMaxDepthGrid6==12
 end
 
 @testset "Coordinates test" failfast=true begin

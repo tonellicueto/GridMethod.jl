@@ -68,7 +68,8 @@ Base.getindex(G::Grid, i::Int) = getindex(gridnodes(G), i)
 Base.push!(G::Grid, g::GridNode) = Base.push!(gridnodes(G), g) #Add node g to grid G
 Base.pushfirst!(G::Grid, g::GridNode) = Base.pushfirst!(gridnodes(G), g) #Add node g to grid G
 Base.pop!(G::Grid) = Base.pop!(gridnodes(G)) #Picks a node g from G and removes it
-Base.popfirst!(G::Grid, g::GridNode) = Base.popfirst!(gridnodes(G)) #Add node g to grid G
+Base.popfirst!(G::Grid) = Base.popfirst!(gridnodes(G)) #Add node g to grid G
+Base.append!(G::Grid, collections...) = Base.append!(gridnodes(G), collections...)
 
 # Iterate over a grid
 Base.eltype(G::Grid) = Base.eltype(gridnodes(G))
