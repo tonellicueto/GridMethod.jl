@@ -18,7 +18,7 @@ end
 
 function normalizePoly(P::PolynomialSystem{T}, polyNorm) where T
     invnorms = [
-        polyNorm(P.degrees[i], P.monomialDegrees[i], P.coefficients[i])
+        1/polyNorm(P.degrees[i], P.monomialDegrees[i], P.coefficients[i])
         for i in eachindex(P.degrees)
     ]
     invnormsDiag = Diagonal(invnorms)
