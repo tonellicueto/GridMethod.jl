@@ -193,7 +193,7 @@ function CubicalProjectiveGrid(
         end
 
         PP = PolynomialSystem{T}(
-            polysys,
+            v -> polysys(v),
             _projectiveJacobian,
             polysys.degrees,
             polysys.coefficients,
