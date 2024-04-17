@@ -171,4 +171,37 @@ function ProjectiveGrid(
     )
 end
 
+function KacProjectiveGrid(
+    polysys::PolynomialSystem{T},
+    dim::UInt;
+    polyNorm=nothing
+) where T <: Number
+    if !isnothing(polyNorm)
+        polysys=normalizePoly(polysys,polyNorm)
+    end
+
+    function _projectiveJacobian(v::Vector{T}) #modify
+        jacobianP = polysys.jacobian(v)
+
+        return jacobianP*(I(dim)-normalizedV*transpose(normalizedV))
+    end
+
+    projectivePolysys = PolynomialSystem{T}(
+        v -> polysys(v),
+        _projectiveJacobian,
+        polysys.degrees,
+        polysys.coefficients,
+        polysys.monomialDegrees
+    )
+
+    return ProjectiveGrid{T, dim}(
+        projectivePolysys,
+        [
+            Grid{T, dim}(projectivePolysys, [], nothing)
+            for _ in range(1,2*dim)
+        ],
+        nothing
+    )
+end
+
 end
