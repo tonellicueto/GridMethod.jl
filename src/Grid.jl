@@ -18,7 +18,7 @@ export polysys
 export gridnodes
 export est_condition
 export dim
-export CubicalSphericalProjectiveGrid
+export CubicalProjectiveGrid
 export SphericalProjectiveGrid
 
 #Definition of GridNode structure
@@ -138,7 +138,7 @@ mutable struct ProjectiveGrid{T <: Number, dim}
     est_condition::Union{T, Nothing}
 end
 
-function SphericalSphericalProjectiveGrid(
+function SphericalProjectiveGrid(
     polysys::PolynomialSystem{T},
     dim::UInt;
     polyNorm=nothing
@@ -172,7 +172,7 @@ function SphericalSphericalProjectiveGrid(
     )
 end
 
-function CubicalSphericalProjectiveGrid(
+function CubicalProjectiveGrid(
     polysys::PolynomialSystem{T},
     dim::UInt
 ) where T <: Number
