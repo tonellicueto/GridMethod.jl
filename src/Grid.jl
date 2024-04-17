@@ -18,6 +18,7 @@ export polysys
 export gridnodes
 export est_condition
 export dim
+export ProjectiveGrid
 export CubicalProjectiveGrid
 export SphericalProjectiveGrid
 
