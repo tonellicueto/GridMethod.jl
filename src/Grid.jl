@@ -18,7 +18,8 @@ export polysys
 export gridnodes
 export est_condition
 export dim
-export ProjectiveGrid
+export CubicalSphericalProjectiveGrid
+export SphericalProjectiveGrid
 
 #Definition of GridNode structure
 
