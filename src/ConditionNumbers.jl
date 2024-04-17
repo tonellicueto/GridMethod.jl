@@ -29,7 +29,11 @@ function localC(
         rowsJacobian,
         f.degrees
     )
-    scale2 = last(filter(x -> x!=0.0, svdvals(jacobian)))
+    if length(f.degrees)==1
+        scale2=norm(jacobian,1)
+    else
+        scale2 = last(svdvals(jacobian))
+    end
 
     return 1/maximum((scale1, scale2))
 end
