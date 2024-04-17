@@ -12,6 +12,7 @@ export hinfNorm
 export matrixInfPNorm
 export PolyNormW
 export GridSystem
+export weylNorm
 
 #Norms
 

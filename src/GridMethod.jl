@@ -1,9 +1,5 @@
 module GridMethod
 
-#Include files with extracode
-#include("Polynomial.jl")
-#using .Polynomial
-
 include("NormsPolynomials.jl")
 using .NormsPolynomials
 

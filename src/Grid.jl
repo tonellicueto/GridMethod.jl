@@ -173,33 +173,40 @@ end
 
 function KacProjectiveGrid(
     polysys::PolynomialSystem{T},
-    dim::UInt;
-    polyNorm=nothing
+    dim::UInt
 ) where T <: Number
-    if !isnothing(polyNorm)
-        polysys=normalizePoly(polysys,polyNorm)
+    charts = []
+    for i in range(1,2*dim)
+        basisIndex = UInt((i-1)%dim+1)
+        function _projectiveJacobian(v::Vector{T})
+            J = polysys.jacobian(v)
+
+            # This removes the column at the
+            # coordinate index of the corresponding 
+            # basis vector.
+            return hcat(
+                view(J,:,1:basisIndex-1),
+                view(J,:,basisIndex+1:dim)
+            )
+        end
+
+        PP = PolynomialSystem{T}(
+            polysys,
+            _projectiveJacobian,
+            polysys.degrees,
+            polysys.coefficients,
+            polysys.monomialDegrees
+        )
+
+        push!(
+            charts,
+            Grid{T, dim}(PP, [], nothing)
+        )
     end
-
-    function _projectiveJacobian(v::Vector{T}) #modify
-        jacobianP = polysys.jacobian(v)
-
-        return jacobianP*(I(dim)-normalizedV*transpose(normalizedV))
-    end
-
-    projectivePolysys = PolynomialSystem{T}(
-        v -> polysys(v),
-        _projectiveJacobian,
-        polysys.degrees,
-        polysys.coefficients,
-        polysys.monomialDegrees
-    )
 
     return ProjectiveGrid{T, dim}(
-        projectivePolysys,
-        [
-            Grid{T, dim}(projectivePolysys, [], nothing)
-            for _ in range(1,2*dim)
-        ],
+        polysys,
+        charts,
         nothing
     )
 end
