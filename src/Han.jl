@@ -2,7 +2,7 @@ module Han
 using LinearAlgebra
 using ..GridModule
 using ..ConditionNumbers
-using ..Norms
+using ..NormsPolynomials
 using ..Coordinates
 using .Iterators
 
@@ -10,6 +10,7 @@ export gridHan!
 export projectiveGridHan!
 export increaseMinDepth!
 export increaseDepth!
+export LazyIncreaseDepth!
 export projectiveIncreaseMinDepth!
 export projectiveIncreaseDepth!
 
@@ -152,6 +153,53 @@ function increaseDepth!(
     end
 end
 
+function LazyIncreaseDepth!(
+    G::Grid{T, dim},
+    extraDepth::UInt;
+    scale::T = one(T),
+    nodeFilter=(node)->true,
+    _split=splitCoordinate
+) where {T, dim}
+    gridLock = ReentrantLock()
+    Threads.@threads for _ in 1:length(G)
+        node = nothing
+        lock(gridLock)
+        try
+            node = popfirst!(G)
+        finally
+            unlock(gridLock)
+        end
+        newNodes = []
+        if nodeFilter(node)
+            newDepth = depth(node)+extraDepth
+            cond=condition(node)
+            newCoordinates = _split(
+                coordinates(node),
+                newDepth;
+                depth=depth(node),
+                scale=scale,
+            )
+            for coord in newCoordinates
+                newNode = LazyGridNode(
+                    G,
+                    newDepth,
+                    coord,
+                    cond
+                )
+                if nodeFilter(newNode)
+                    push!(newNodes,newNode)
+                end
+            end
+        end
+        lock(gridLock)
+        try
+            append!(G,newNodes)
+        finally
+            unlock(gridLock)
+        end
+    end
+end
+
 function gridHan!(
     G::Grid{T, dim},
     depth::UInt;
@@ -189,9 +237,9 @@ function gridHan!(
             else
                 newCoordinates = _split(
                     GridModule.coordinates(node),
-                    local_depth + 1;
+                    local_depth+1;
                     depth=local_depth,
-                    scale=upper-lower
+                    scale=(upper-lower)/2
                 )
                 lock(reprocessLock)
                 try

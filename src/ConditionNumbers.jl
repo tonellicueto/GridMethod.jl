@@ -1,7 +1,6 @@
 module ConditionNumbers
 using LinearAlgebra
-using ..Polynomial
-using ..Norms
+using ..NormsPolynomials
 
 export localC
 export projectiveLocalC
@@ -32,7 +31,7 @@ function localC(
     )
     scale2 = last(filter(x -> x!=0.0, svdvals(jacobian)))
 
-    return polyNorm1(f)/maximum((scale1, scale2))
+    return 1/maximum((scale1, scale2))
 end
 
 function projectiveLocalC(

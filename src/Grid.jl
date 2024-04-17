@@ -1,11 +1,12 @@
 module GridModule
 using LinearAlgebra
 using Parameters
-using ..Polynomial
+using ..NormsPolynomials
 using ..ConditionNumbers
 import Base: ==
 
 export GridNode
+export LazyGridNode
 export Grid
 export depth
 export coordinates
@@ -18,6 +19,8 @@ export gridnodes
 export est_condition
 export dim
 export ProjectiveGrid
+
+#Definition of GridNode structure
 
 struct GridNode{T <: Number, dim}
     depth::UInt
@@ -108,6 +111,23 @@ function GridNode(
             image=nodeImage,
             jacobian=nodeJacobian
         )
+    )
+end
+
+function LazyGridNode(
+    grid::Grid{T, dim},
+    depth::UInt,
+    coordinates::Vector{T},
+    localCondition::T
+) where {T, dim}
+    nodeImage = polysys(grid)(coordinates)
+    nodeJacobian = polysys(grid).jacobian(coordinates)
+    GridNode{T, dim}(
+        depth,
+        coordinates,
+        nodeImage,
+        nodeJacobian,
+        localCondition
     )
 end
 

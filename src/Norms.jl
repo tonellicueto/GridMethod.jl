@@ -1,19 +1,22 @@
 module Norms
 using ..Polynomial
-using .Iterators
-using LinearAlgebra
-using Logging
 
-export polyNorm1
-export hinfNorm
-export matrixInfPNorm
-export weylNorm
+
+
 
 function polyNorm1(poly::PolynomialSystem{T})::T where T
     # the 1-norm of a polynomial system is the maximum of
     # the absolute sum of the coefficients from every polynomial
     # in the system.
     return maximum(map(sum, map(l -> map(abs, l),poly.coefficients)))
+end
+
+function polyNorm1(
+    degree::Integer,
+    monomials::Vector{Vector{S}},
+    coefficients::Vector{T}
+) where {S <: Integer, T <: Number}
+    return maximum(map(sum, map(l -> map(abs, l),coefficients)))
 end
 
 function hinfNorm(x::Vector{T}) where T <: Number
@@ -34,7 +37,7 @@ function matrixInfPNorm(A::Matrix{T}; p=2) where T <: Number
     return maximum(map(cols -> norm(sum(cols), p), colMultipleIter))
 end
 
-function weylNorm(
+function PolyNormW(
     degree::Integer,
     monomials::Vector{Vector{S}},
     coefficients::Vector{T}

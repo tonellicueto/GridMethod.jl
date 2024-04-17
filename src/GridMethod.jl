@@ -1,11 +1,11 @@
 module GridMethod
 
 #Include files with extracode
-include("Polynomial.jl")
-using .Polynomial
+#include("Polynomial.jl")
+#using .Polynomial
 
-include("Norms.jl")
-using .Norms
+include("NormsPolynomials.jl")
+using .NormsPolynomials
 
 include("ConditionNumbers.jl")
 using .ConditionNumbers
