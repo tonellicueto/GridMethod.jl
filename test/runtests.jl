@@ -499,7 +499,7 @@ end
         HCMK.support_coefficients(polysys1)[2],
         _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys1)[1])
     )
-    PG1::ProjectiveGrid{Float64, UInt(2)} = ProjectiveGrid(
+    PG1::ProjectiveGrid{Float64, UInt(2)} = SphericalProjectiveGrid(
         gridPolySys1,
         UInt(2)
     )
@@ -526,7 +526,7 @@ end
         HCMK.support_coefficients(polysys2)[2],
         _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys2)[1])
     )
-    PG2::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
+    PG2::ProjectiveGrid{Float64, UInt(3)} = SphericalProjectiveGrid(
         gridPolySys2,
         UInt(3)
     )
@@ -553,7 +553,7 @@ end
         HCMK.support_coefficients(polysys3)[2],
         _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys3)[1])
     )
-    PG3::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
+    PG3::ProjectiveGrid{Float64, UInt(3)} = SphericalProjectiveGrid(
         gridPolySys3,
         UInt(3)
     )
@@ -580,7 +580,7 @@ end
         HCMK.support_coefficients(polysys4)[2],
         _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys4)[1])
     )
-    PG4::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
+    PG4::ProjectiveGrid{Float64, UInt(3)} = SphericalProjectiveGrid(
         gridPolySys4,
         UInt(3)
     )
@@ -607,7 +607,7 @@ end
         HCMK.support_coefficients(polysys5)[2],
         _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys5)[1])
     )
-    PG5::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
+    PG5::ProjectiveGrid{Float64, UInt(3)} = SphericalProjectiveGrid(
         gridPolySys5,
         UInt(3)
     )
@@ -634,7 +634,7 @@ end
         HCMK.support_coefficients(polysys6)[2],
         _convertHCMKDegreesToPolynomial(HCMK.support_coefficients(polysys6)[1])
     )
-    PG6::ProjectiveGrid{Float64, UInt(3)} = ProjectiveGrid(
+    PG6::ProjectiveGrid{Float64, UInt(3)} = SphericalProjectiveGrid(
         gridPolySys6,
         UInt(3)
     )

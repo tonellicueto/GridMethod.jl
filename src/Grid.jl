@@ -137,7 +137,7 @@ mutable struct ProjectiveGrid{T <: Number, dim}
     est_condition::Union{T, Nothing}
 end
 
-function ProjectiveGrid(
+function SphericalSphericalProjectiveGrid(
     polysys::PolynomialSystem{T},
     dim::UInt;
     polyNorm=nothing
@@ -171,7 +171,7 @@ function ProjectiveGrid(
     )
 end
 
-function KacProjectiveGrid(
+function CubicalSphericalProjectiveGrid(
     polysys::PolynomialSystem{T},
     dim::UInt
 ) where T <: Number
